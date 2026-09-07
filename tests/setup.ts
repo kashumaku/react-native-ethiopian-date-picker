@@ -33,11 +33,16 @@ jest.mock("react-native", () => {
     hairlineWidth: 1,
   };
 
+  const ScrollView = (props: any) => React.createElement("ScrollView", props, props.children);
+  const TextInput = (props: any) => React.createElement("TextInput", props, props.children);
+
   return {
     View,
     Text,
     Pressable,
     Modal,
+    ScrollView,
+    TextInput,
     StyleSheet,
   };
 });

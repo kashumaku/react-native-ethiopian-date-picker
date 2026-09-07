@@ -1,6 +1,7 @@
 # react-native-ethiopian-date-picker
 
 [![npm version](https://img.shields.io/npm/v/react-native-ethiopian-date-picker.svg)](https://www.npmjs.com/package/react-native-ethiopian-date-picker)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/kashumaku/react-native-ethiopian-date-picker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![Expo Ready](https://img.shields.io/badge/Expo-Compatible-green.svg)](https://expo.dev/)
@@ -397,6 +398,45 @@ const grid = getEthiopianMonthGrid(2019, 1);
 
 ---
 
+### Ethiopian Time Picker (`<EthiopianTimePicker />`)
+
+Support standard 12-hour, 24-hour, and traditional Ethiopian 12-hour solar day cycle (where sunrise at 6:00 AM Gregorian is 12:00 morning in Ethiopian time):
+
+```tsx
+import React, { useState } from "react";
+import { View, Text } from "react-native";
+import {
+  EthiopianTimePicker,
+  formatEthiopianTime,
+  type EthiopianTime,
+} from "react-native-ethiopian-date-picker";
+
+export function TimePickerExample() {
+  const [time, setTime] = useState<EthiopianTime>({ hours: 14, minutes: 30 });
+
+  return (
+    <View style={{ padding: 20 }}>
+      {/* Formatted in Ethiopian solar time convention (e.g. 8:30 ከሰዓት) */}
+      <Text style={{ fontSize: 16, fontWeight: "600", marginBottom: 12 }}>
+        Selected: {formatEthiopianTime(time, { locale: "am", useEthiopianConvention: true })}
+      </Text>
+
+      {/* Bottom Sheet Mode with Ethiopian Convention */}
+      <EthiopianTimePicker
+        mode="sheet"
+        visible={true}
+        value={time}
+        useEthiopianConvention={true}
+        locale="am"
+        onChange={(newTime) => setTime(newTime)}
+      />
+    </View>
+  );
+}
+```
+
+---
+
 ## API Reference
 
 ### `<EthiopianDatePicker />` Props
@@ -411,11 +451,11 @@ const grid = getEthiopianMonthGrid(2019, 1);
 | `defaultSelectedRange` | `EthiopianDateRange \| null` | `{ startDate: null, endDate: null }` | Initial Gregorian date range for uncontrolled range mode. |
 | `onRangeChange` | `(range: EthiopianDateRange) => void` | `undefined` | Callback fired when a date range is selected/confirmed. |
 | `locale` | `"en" \| "am"` | `"en"` | Language locale for month names, weekdays, and buttons. |
-| `mode` | `"inline" \| "modal"` | `"inline"` | Display mode: embedded in page or in a modal popup. |
-| `defaultVisible` | `boolean` | `false` | Initial visibility state for modal mode when uncontrolled. |
-| `visible` | `boolean` | `undefined` | Controls modal visibility when `mode="modal"`. |
-| `onOpen` | `() => void` | `undefined` | Fired when modal opens. |
-| `onClose` | `() => void` | `undefined` | Fired when modal closes or is cancelled. |
+| `mode` | `"inline" \| "modal" \| "sheet"` | `"inline"` | Display mode: embedded in page, center modal dialog, or bottom sheet. |
+| `defaultVisible` | `boolean` | `false` | Initial visibility state for modal/sheet mode when uncontrolled. |
+| `visible` | `boolean` | `undefined` | Controls modal/sheet visibility when `mode="modal"` or `mode="sheet"`. |
+| `onOpen` | `() => void` | `undefined` | Fired when modal/sheet opens. |
+| `onClose` | `() => void` | `undefined` | Fired when modal/sheet closes or is cancelled. |
 | `minimumDate` | `Date` | `undefined` | Minimum selectable Gregorian date. |
 | `maximumDate` | `Date` | `undefined` | Maximum selectable Gregorian date. |
 | `disabledDates` | `Date[] \| ((date: Date) => boolean)` | `undefined` | Specific dates or dynamic predicate to disable. |
@@ -430,6 +470,31 @@ const grid = getEthiopianMonthGrid(2019, 1);
 | `disabled` | `boolean` | `false` | Disables interaction across the entire picker. |
 | `style` | `ViewStyle` | `undefined` | Style overrides for the outer container. |
 | `testID` | `string` | `undefined` | Automation test ID prefix. |
+
+---
+
+### `<EthiopianTimePicker />` Props
+
+| Prop | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `value` | `Date \| EthiopianTime` | `undefined` | Controlled time value. |
+| `defaultValue` | `Date \| EthiopianTime` | `Current Time` | Initial uncontrolled time value. |
+| `onChange` | `(time: EthiopianTime, date: Date) => void` | `undefined` | Callback fired when time is changed/confirmed. |
+| `mode` | `"inline" \| "modal" \| "sheet"` | `"inline"` | Display presentation: inline, modal dialog, or bottom sheet. |
+| `is24Hour` | `boolean` | `false` | Enables 24-hour time format (00:00 to 23:59). |
+| `useEthiopianConvention` | `boolean` | `false` | Traditional 12-hour solar day cycle starting at sunrise (~6 AM). |
+| `minuteInterval` | `number` | `1` | Minute stepping interval (e.g., 1, 5, 10, 15). |
+| `locale` | `"en" \| "am"` | `"en"` | Language locale for time period labels (ጠዋት, ከሰዓት, ማታ, ሌሊት). |
+| `visible` | `boolean` | `undefined` | Controls modal/sheet visibility. |
+| `defaultVisible` | `boolean` | `false` | Initial visibility state when uncontrolled. |
+| `onOpen` | `() => void` | `undefined` | Fired when modal/sheet opens. |
+| `onClose` | `() => void` | `undefined` | Fired when modal/sheet closes. |
+| `title` | `string` | `"Select Time"` | Modal/sheet title. |
+| `confirmText` | `string` | `"Confirm"` / `"አረጋግጥ"` | Modal/sheet confirm button text. |
+| `cancelText` | `string` | `"Cancel"` / `"ይቅር"` | Modal/sheet cancel button text. |
+| `theme` | `EthiopianDatePickerTheme` | `defaultTheme` | Color and styling theme overrides. |
+| `disabled` | `boolean` | `false` | Disables user interaction. |
+| `testID` | `string` | `"eth-time-picker"` | Automation test ID prefix. |
 
 ---
 
@@ -494,6 +559,10 @@ The Ethiopian calendar (Ge'ez: የኢትዮጵያ ዘመን አቆጣጠር) is 
 ## Contributing
 
 Contributions, bug reports, and feature suggestions are very welcome!
+
+- **GitHub Repository**: [https://github.com/kashumaku/react-native-ethiopian-date-picker](https://github.com/kashumaku/react-native-ethiopian-date-picker)
+- **Issues & Discussions**: [https://github.com/kashumaku/react-native-ethiopian-date-picker/issues](https://github.com/kashumaku/react-native-ethiopian-date-picker/issues)
+
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/my-feature`)
 3. Commit your changes (`git commit -m 'Add some feature'`)

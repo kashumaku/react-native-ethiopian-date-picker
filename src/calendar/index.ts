@@ -18,3 +18,8 @@ export {
 export { isValidEthiopianDate, validateEthiopianDate } from "./validation";
 export { nextEthiopianMonth, previousEthiopianMonth } from "./month";
 export { getEthiopianMonthGrid } from "./calendarGrid";
+export {
+  gregorianToEthiopianTime,
+  ethiopianToGregorianTime,
+  getTimePeriodName,
+} from "./time";

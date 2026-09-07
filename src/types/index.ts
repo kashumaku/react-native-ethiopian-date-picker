@@ -234,3 +234,60 @@ export type EthiopianDatePickerRef = {
   goToDate?: (date: Date) => void;
   setRange?: (range: EthiopianDateRange) => void;
 };
+
+/**
+ * Represents a time of day.
+ */
+export type EthiopianTime = {
+  hours: number; // 0 to 23
+  minutes: number; // 0 to 59
+};
+
+/**
+ * Traditional Ethiopian time period.
+ */
+export type EthiopianTimePeriod = "morning" | "afternoon" | "evening" | "night";
+
+/**
+ * Formatting options for formatEthiopianTime utility.
+ */
+export type FormatEthiopianTimeOptions = {
+  locale?: EthiopianLocale;
+  is24Hour?: boolean;
+  useEthiopianConvention?: boolean;
+  includePeriod?: boolean;
+};
+
+/**
+ * Props for the EthiopianTimePicker component.
+ */
+export type EthiopianTimePickerProps = {
+  value?: Date | EthiopianTime | null;
+  defaultValue?: Date | EthiopianTime | null;
+  onChange?: (time: EthiopianTime, date: Date) => void;
+  locale?: EthiopianLocale;
+  mode?: "inline" | "modal" | "sheet";
+  is24Hour?: boolean;
+  useEthiopianConvention?: boolean;
+  minuteInterval?: 1 | 5 | 10 | 15 | 30;
+  defaultVisible?: boolean;
+  visible?: boolean;
+  onOpen?: () => void;
+  onClose?: () => void;
+  title?: string;
+  confirmText?: string;
+  cancelText?: string;
+  theme?: EthiopianDatePickerTheme;
+  style?: ViewStyle;
+  disabled?: boolean;
+  testID?: string;
+};
+
+/**
+ * Imperative ref handles for EthiopianTimePicker.
+ */
+export type EthiopianTimePickerRef = {
+  open?: () => void;
+  close?: () => void;
+  setTime?: (time: EthiopianTime) => void;
+};

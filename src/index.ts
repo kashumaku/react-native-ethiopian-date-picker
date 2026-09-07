@@ -1,6 +1,7 @@
 // UI Components
 export {
   EthiopianDatePicker,
+  EthiopianTimePicker,
   CalendarDay,
   CalendarGrid,
   CalendarHeader,
@@ -28,6 +29,9 @@ export {
   previousEthiopianMonth,
   isValidEthiopianDate,
   validateEthiopianDate,
+  gregorianToEthiopianTime,
+  ethiopianToGregorianTime,
+  getTimePeriodName,
   ETHIOPIAN_EPOCH,
   ETHIOPIAN_MONTHS,
   ETHIOPIAN_WEEKDAYS,
@@ -52,7 +56,11 @@ export {
 } from "./conversion";
 
 // Formatting
-export { formatEthiopianDate, formatEthiopianDateRange } from "./formatting";
+export {
+  formatEthiopianDate,
+  formatEthiopianDateRange,
+  formatEthiopianTime,
+} from "./formatting";
 
 // Localization
 export { getLocalization, en, am } from "./localization";
@@ -64,11 +72,17 @@ export { useEthiopianDatePicker } from "./hooks/useEthiopianDatePicker";
 export type {
   EthiopianDate,
   EthiopianDateRange,
+  EthiopianTime,
+  EthiopianTimePeriod,
   EthiopianMonth,
   EthiopianWeekday,
   EthiopianLocale,
   EthiopianDatePickerProps,
   EthiopianDatePickerTheme,
   EthiopianDatePickerRef,
+  EthiopianTimePickerProps,
+  EthiopianTimePickerRef,
   FormatEthiopianDateOptions,
+  FormatEthiopianTimeOptions,
 } from "./types";
+
