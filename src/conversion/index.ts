@@ -10,6 +10,9 @@ export {
   isSameGregorianDay,
   isBeforeGregorianDay,
   isAfterGregorianDay,
+  isSameOrBeforeGregorianDay,
+  isSameOrAfterGregorianDay,
+  isBetweenGregorianDays,
   isToday,
   isSameEthiopianDay,
 } from "./comparison";

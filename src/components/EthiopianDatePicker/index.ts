@@ -1,5 +1,5 @@
 export { EthiopianDatePicker } from "./EthiopianDatePicker";
-export { CalendarDay, type CalendarDayProps } from "./CalendarDay";
+export { CalendarDay, type CalendarDayProps, type DayRangePosition } from "./CalendarDay";
 export { CalendarGrid, type CalendarGridProps } from "./CalendarGrid";
 export { CalendarHeader, type CalendarHeaderProps } from "./CalendarHeader";
 export { WeekdayHeader, type WeekdayHeaderProps } from "./WeekdayHeader";

@@ -1,1 +1,1 @@
-export { formatEthiopianDate } from "./format";
+export { formatEthiopianDate, formatEthiopianDateRange } from "./format";

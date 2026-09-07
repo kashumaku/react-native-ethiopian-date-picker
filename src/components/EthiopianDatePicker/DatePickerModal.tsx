@@ -6,6 +6,7 @@ import type { EthiopianLocale } from "../../types";
 
 export interface DatePickerModalProps {
   visible: boolean;
+  selectionType?: "single" | "range";
   onClose: () => void;
   onConfirm: () => void;
   title?: string;
@@ -19,6 +20,7 @@ export interface DatePickerModalProps {
 
 export const DatePickerModal: React.FC<DatePickerModalProps> = ({
   visible,
+  selectionType = "single",
   onClose,
   onConfirm,
   title,
@@ -30,7 +32,8 @@ export const DatePickerModal: React.FC<DatePickerModalProps> = ({
   testID,
 }) => {
   const dict = getLocalization(locale);
-  const displayTitle = title ?? dict.selectDate;
+  const defaultTitle = selectionType === "range" ? dict.selectRange : dict.selectDate;
+  const displayTitle = title ?? defaultTitle;
   const displayConfirm = confirmText ?? dict.confirm;
   const displayCancel = cancelText ?? dict.cancel;
 

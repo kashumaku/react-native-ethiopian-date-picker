@@ -1,4 +1,4 @@
-import { formatEthiopianDate } from "../../src/formatting/format";
+import { formatEthiopianDate, formatEthiopianDateRange } from "../../src/formatting/format";
 
 describe("formatEthiopianDate", () => {
   const sampleGregorian = new Date(2026, 8, 25); // September 25, 2026 -> 15 Meskerem 2019 (Friday)
@@ -40,5 +40,30 @@ describe("formatEthiopianDate", () => {
 
   it("should format from an EthiopianDate object directly", () => {
     expect(formatEthiopianDate({ year: 2019, month: 1, day: 15 })).toBe("15 Meskerem 2019");
+  });
+});
+
+describe("formatEthiopianDateRange", () => {
+  const start = new Date(2026, 8, 25); // 15 Meskerem 2019
+  const end = new Date(2026, 9, 2);    // 22 Meskerem 2019
+
+  it("should format date range in English", () => {
+    expect(formatEthiopianDateRange({ startDate: start, endDate: end })).toBe(
+      "15 Meskerem 2019 – 22 Meskerem 2019",
+    );
+  });
+
+  it("should format date range in Amharic", () => {
+    expect(formatEthiopianDateRange({ startDate: start, endDate: end }, { locale: "am" })).toBe(
+      "15 መስከረም 2019 – 22 መስከረም 2019",
+    );
+  });
+
+  it("should format when only startDate is provided", () => {
+    expect(formatEthiopianDateRange({ startDate: start, endDate: null })).toBe("15 Meskerem 2019");
+  });
+
+  it("should return empty string for empty range", () => {
+    expect(formatEthiopianDateRange({ startDate: null, endDate: null })).toBe("");
   });
 });

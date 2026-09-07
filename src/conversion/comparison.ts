@@ -31,6 +31,28 @@ export function isAfterGregorianDay(a: Date, b: Date): boolean {
 }
 
 /**
+ * Checks whether calendar day `a` is on or before calendar day `b`.
+ */
+export function isSameOrBeforeGregorianDay(a: Date, b: Date): boolean {
+  return isSameGregorianDay(a, b) || isBeforeGregorianDay(a, b);
+}
+
+/**
+ * Checks whether calendar day `a` is on or after calendar day `b`.
+ */
+export function isSameOrAfterGregorianDay(a: Date, b: Date): boolean {
+  return isSameGregorianDay(a, b) || isAfterGregorianDay(a, b);
+}
+
+/**
+ * Checks whether calendar day `date` is strictly between `start` and `end` (exclusive of endpoints).
+ */
+export function isBetweenGregorianDays(date: Date, start?: Date | null, end?: Date | null): boolean {
+  if (!start || !end) return false;
+  return isAfterGregorianDay(date, start) && isBeforeGregorianDay(date, end);
+}
+
+/**
  * Checks whether a Gregorian Date represents today's local calendar day.
  */
 export function isToday(date: Date): boolean {

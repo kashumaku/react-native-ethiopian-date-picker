@@ -1,7 +1,7 @@
 import { toEthiopian } from "../conversion/gregorianToEthiopian";
 import { toGregorian } from "../conversion/ethiopianToGregorian";
 import { getLocalization } from "../localization";
-import type { EthiopianDate, FormatEthiopianDateOptions } from "../types";
+import type { EthiopianDate, EthiopianDateRange, FormatEthiopianDateOptions } from "../types";
 
 /**
  * Formats an Ethiopian date or Gregorian Date into a localized string.
@@ -69,4 +69,26 @@ export function formatEthiopianDate(
     default:
       return `${day} ${monthName} ${year}`;
   }
+}
+
+/**
+ * Formats a selected Ethiopian date range into a localized string.
+ *
+ * @param range The date range { startDate, endDate }
+ * @param options Formatting options { locale, format, pattern }
+ * @returns Formatted range string (e.g., "15 Meskerem 2019 - 22 Meskerem 2019")
+ */
+export function formatEthiopianDateRange(
+  range: EthiopianDateRange,
+  options?: FormatEthiopianDateOptions,
+): string {
+  const { startDate, endDate } = range;
+  if (!startDate && !endDate) return "";
+  if (startDate && !endDate) {
+    return formatEthiopianDate(startDate, options);
+  }
+  if (!startDate && endDate) {
+    return formatEthiopianDate(endDate, options);
+  }
+  return `${formatEthiopianDate(startDate!, options)} – ${formatEthiopianDate(endDate!, options)}`;
 }

@@ -18,6 +18,7 @@ export const EthiopianDatePicker = forwardRef<
   EthiopianDatePickerProps
 >((props, ref) => {
   const {
+    selectionType = "single",
     locale = "en",
     mode = "inline",
     showTodayButton = false,
@@ -38,6 +39,7 @@ export const EthiopianDatePicker = forwardRef<
 
   const {
     selectedDate,
+    selectedRange,
     displayedYear,
     displayedMonth,
     isMonthYearSelectorOpen,
@@ -53,6 +55,7 @@ export const EthiopianDatePicker = forwardRef<
     closeModal,
     confirmDraft,
     cancelDraft,
+    setRange,
     toggleMonthYearSelector,
   } = useEthiopianDatePicker(props);
 
@@ -61,9 +64,10 @@ export const EthiopianDatePicker = forwardRef<
     close: closeModal,
     goToToday,
     goToDate,
+    setRange,
   }));
 
-  const renderCalendarContent = () => (
+  const renderCalendarContent = (isInsideModal = false) => (
     <View
       style={[
         styles.container,
@@ -72,6 +76,7 @@ export const EthiopianDatePicker = forwardRef<
           borderColor: resolvedTheme.borderColor,
           borderRadius: resolvedTheme.borderRadius,
         },
+        isInsideModal && styles.modalCalendarContainer,
         style,
       ]}
       testID={testID}
@@ -107,7 +112,9 @@ export const EthiopianDatePicker = forwardRef<
           <CalendarGrid
             year={displayedYear}
             month={displayedMonth}
+            selectionType={selectionType}
             selectedDate={selectedDate}
+            selectedRange={selectedRange}
             onSelectDay={selectDay}
             isDayDisabled={isDayDisabled}
             locale={locale}
@@ -138,7 +145,7 @@ export const EthiopianDatePicker = forwardRef<
             <Text
               style={[
                 styles.todayButtonText,
-                { color: resolvedTheme.primaryColor },
+                { color: resolvedTheme.textColor },
               ]}
             >
               {todayButtonText ?? dict.today}
@@ -153,6 +160,7 @@ export const EthiopianDatePicker = forwardRef<
     return (
       <DatePickerModal
         visible={isModalVisible}
+        selectionType={selectionType}
         onClose={cancelDraft}
         onConfirm={confirmDraft}
         title={title}
@@ -162,7 +170,7 @@ export const EthiopianDatePicker = forwardRef<
         theme={resolvedTheme}
         testID={testID}
       >
-        {renderCalendarContent()}
+        {renderCalendarContent(true)}
       </DatePickerModal>
     );
   }

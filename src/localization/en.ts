@@ -6,6 +6,9 @@ export interface LocalizationStrings {
   cancel: string;
   confirm: string;
   selectDate: string;
+  selectRange: string;
+  startDate: string;
+  endDate: string;
   year: string;
   month: string;
   previousMonth: string;
@@ -24,6 +27,9 @@ export const en: LocalizationStrings = {
   cancel: "Cancel",
   confirm: "Confirm",
   selectDate: "Select Date",
+  selectRange: "Select Date Range",
+  startDate: "Start Date",
+  endDate: "End Date",
   year: "Year",
   month: "Month",
   previousMonth: "Previous Month",

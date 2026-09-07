@@ -8,13 +8,21 @@ import {
   isToday,
 } from "../conversion/comparison";
 import { nextEthiopianMonth, previousEthiopianMonth } from "../calendar/month";
-import type { EthiopianDatePickerProps, EthiopianDate } from "../types";
+import type {
+  EthiopianDatePickerProps,
+  EthiopianDate,
+  EthiopianDateRange,
+} from "../types";
 
 export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
   const {
+    selectionType = "single",
     value,
     defaultValue,
     onChange,
+    selectedRange,
+    defaultSelectedRange,
+    onRangeChange,
     minimumDate,
     maximumDate,
     disabledDates,
@@ -27,6 +35,7 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
     maxYear = 2100,
   } = props;
 
+  // Single date mode state
   const isControlled = value !== undefined;
   const initialDate = value ?? defaultValue ?? new Date();
   const initialEth = useMemo(() => toEthiopian(initialDate), []);
@@ -37,9 +46,30 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
 
   const activeSelectedDate = isControlled ? (value ?? null) : uncontrolledDate;
 
+  // Range mode state
+  const isRangeControlled = selectedRange !== undefined;
+  const [uncontrolledRange, setUncontrolledRange] = useState<EthiopianDateRange>(
+    defaultSelectedRange ?? { startDate: null, endDate: null },
+  );
+  const activeSelectedRange: EthiopianDateRange = isRangeControlled
+    ? (selectedRange ?? { startDate: null, endDate: null })
+    : uncontrolledRange;
+
   // Display navigation state (which Ethiopian month/year is shown)
-  const [displayedYear, setDisplayedYear] = useState<number>(initialEth.year);
-  const [displayedMonth, setDisplayedMonth] = useState<number>(initialEth.month);
+  const initialNavEth = useMemo(() => {
+    if (selectionType === "range") {
+      const base =
+        (isRangeControlled ? selectedRange?.startDate : defaultSelectedRange?.startDate) ??
+        value ??
+        defaultValue ??
+        new Date();
+      return toEthiopian(base);
+    }
+    return initialEth;
+  }, []);
+
+  const [displayedYear, setDisplayedYear] = useState<number>(initialNavEth.year);
+  const [displayedMonth, setDisplayedMonth] = useState<number>(initialNavEth.month);
 
   // Selector view (quick month/year picker)
   const [isMonthYearSelectorOpen, setIsMonthYearSelectorOpen] = useState(false);
@@ -48,27 +78,48 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
   const [uncontrolledModalVisible, setUncontrolledModalVisible] = useState(defaultVisible);
   const isModalVisible = controlledVisible !== undefined ? controlledVisible : uncontrolledModalVisible;
   const [draftDate, setDraftDate] = useState<Date | null>(activeSelectedDate);
+  const [draftRange, setDraftRange] = useState<EthiopianDateRange>(activeSelectedRange);
 
   // Sync displayed month/year when controlled value changes externally
   useEffect(() => {
-    if (value && value instanceof Date && !isNaN(value.getTime())) {
+    if (selectionType === "single" && value && value instanceof Date && !isNaN(value.getTime())) {
       const eth = toEthiopian(value);
       setDisplayedYear(eth.year);
       setDisplayedMonth(eth.month);
       setDraftDate(value);
     }
-  }, [value]);
+  }, [selectionType, value]);
 
-  // Sync draftDate whenever modal opens
+  // Sync displayed month/year when controlled selectedRange changes externally
+  useEffect(() => {
+    if (selectionType === "range" && selectedRange) {
+      setDraftRange(selectedRange);
+      if (selectedRange.startDate && selectedRange.startDate instanceof Date && !isNaN(selectedRange.startDate.getTime())) {
+        const eth = toEthiopian(selectedRange.startDate);
+        setDisplayedYear(eth.year);
+        setDisplayedMonth(eth.month);
+      }
+    }
+  }, [selectionType, selectedRange]);
+
+  // Sync draft whenever modal opens
   useEffect(() => {
     if (isModalVisible) {
-      setDraftDate(activeSelectedDate ?? new Date());
-      const base = activeSelectedDate ?? new Date();
-      const eth = toEthiopian(base);
-      setDisplayedYear(eth.year);
-      setDisplayedMonth(eth.month);
+      if (selectionType === "range") {
+        setDraftRange(activeSelectedRange);
+        const base = activeSelectedRange.startDate ?? new Date();
+        const eth = toEthiopian(base);
+        setDisplayedYear(eth.year);
+        setDisplayedMonth(eth.month);
+      } else {
+        setDraftDate(activeSelectedDate ?? new Date());
+        const base = activeSelectedDate ?? new Date();
+        const eth = toEthiopian(base);
+        setDisplayedYear(eth.year);
+        setDisplayedMonth(eth.month);
+      }
     }
-  }, [isModalVisible]);
+  }, [isModalVisible, selectionType]);
 
   const isDateDisabled = useCallback(
     (gregDate: Date): boolean => {
@@ -145,16 +196,50 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
         return;
       }
 
-      if (mode === "modal") {
-        setDraftDate(selectedGreg);
-      } else {
-        if (!isControlled) {
-          setUncontrolledDate(selectedGreg);
+      if (selectionType === "range") {
+        const currentRange = mode === "modal" ? draftRange : activeSelectedRange;
+        let nextRange: EthiopianDateRange;
+
+        if (!currentRange.startDate || (currentRange.startDate && currentRange.endDate)) {
+          nextRange = { startDate: selectedGreg, endDate: null };
+        } else if (isBeforeGregorianDay(selectedGreg, currentRange.startDate)) {
+          nextRange = { startDate: selectedGreg, endDate: null };
+        } else {
+          nextRange = { startDate: currentRange.startDate, endDate: selectedGreg };
         }
-        onChange?.(selectedGreg);
+
+        if (mode === "modal") {
+          setDraftRange(nextRange);
+        } else {
+          if (!isRangeControlled) {
+            setUncontrolledRange(nextRange);
+          }
+          onRangeChange?.(nextRange);
+        }
+      } else {
+        if (mode === "modal") {
+          setDraftDate(selectedGreg);
+        } else {
+          if (!isControlled) {
+            setUncontrolledDate(selectedGreg);
+          }
+          onChange?.(selectedGreg);
+        }
       }
     },
-    [displayedYear, displayedMonth, isDateDisabled, mode, isControlled, onChange],
+    [
+      displayedYear,
+      displayedMonth,
+      isDateDisabled,
+      selectionType,
+      mode,
+      draftRange,
+      activeSelectedRange,
+      isRangeControlled,
+      onRangeChange,
+      isControlled,
+      onChange,
+    ],
   );
 
   const goToToday = useCallback(() => {
@@ -165,16 +250,28 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
     setIsMonthYearSelectorOpen(false);
 
     if (!isDateDisabled(now)) {
-      if (mode === "modal") {
-        setDraftDate(now);
-      } else {
-        if (!isControlled) {
-          setUncontrolledDate(now);
+      if (selectionType === "range") {
+        const range: EthiopianDateRange = { startDate: now, endDate: null };
+        if (mode === "modal") {
+          setDraftRange(range);
+        } else {
+          if (!isRangeControlled) {
+            setUncontrolledRange(range);
+          }
+          onRangeChange?.(range);
         }
-        onChange?.(now);
+      } else {
+        if (mode === "modal") {
+          setDraftDate(now);
+        } else {
+          if (!isControlled) {
+            setUncontrolledDate(now);
+          }
+          onChange?.(now);
+        }
       }
     }
-  }, [isDateDisabled, mode, isControlled, onChange]);
+  }, [isDateDisabled, selectionType, mode, isRangeControlled, onRangeChange, isControlled, onChange]);
 
   const goToDate = useCallback(
     (date: Date) => {
@@ -184,17 +281,29 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
       setIsMonthYearSelectorOpen(false);
 
       if (!isDateDisabled(date)) {
-        if (mode === "modal") {
-          setDraftDate(date);
-        } else {
-          if (!isControlled) {
-            setUncontrolledDate(date);
+        if (selectionType === "range") {
+          const range: EthiopianDateRange = { startDate: date, endDate: null };
+          if (mode === "modal") {
+            setDraftRange(range);
+          } else {
+            if (!isRangeControlled) {
+              setUncontrolledRange(range);
+            }
+            onRangeChange?.(range);
           }
-          onChange?.(date);
+        } else {
+          if (mode === "modal") {
+            setDraftDate(date);
+          } else {
+            if (!isControlled) {
+              setUncontrolledDate(date);
+            }
+            onChange?.(date);
+          }
         }
       }
     },
-    [isDateDisabled, mode, isControlled, onChange],
+    [isDateDisabled, selectionType, mode, isRangeControlled, onRangeChange, isControlled, onChange],
   );
 
   const openModal = useCallback(() => {
@@ -212,31 +321,62 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
   }, [controlledVisible, onClose]);
 
   const confirmDraft = useCallback(() => {
-    if (draftDate) {
-      if (!isControlled) {
-        setUncontrolledDate(draftDate);
+    if (selectionType === "range") {
+      if (!isRangeControlled) {
+        setUncontrolledRange(draftRange);
       }
-      onChange?.(draftDate);
+      onRangeChange?.(draftRange);
+    } else {
+      if (draftDate) {
+        if (!isControlled) {
+          setUncontrolledDate(draftDate);
+        }
+        onChange?.(draftDate);
+      }
     }
     closeModal();
-  }, [draftDate, isControlled, onChange, closeModal]);
+  }, [selectionType, isRangeControlled, draftRange, onRangeChange, draftDate, isControlled, onChange, closeModal]);
 
   const cancelDraft = useCallback(() => {
-    setDraftDate(activeSelectedDate);
+    if (selectionType === "range") {
+      setDraftRange(activeSelectedRange);
+    } else {
+      setDraftDate(activeSelectedDate);
+    }
     closeModal();
-  }, [activeSelectedDate, closeModal]);
+  }, [selectionType, activeSelectedRange, activeSelectedDate, closeModal]);
+
+  const setRange = useCallback(
+    (range: EthiopianDateRange) => {
+      if (mode === "modal") {
+        setDraftRange(range);
+      } else {
+        if (!isRangeControlled) {
+          setUncontrolledRange(range);
+        }
+        onRangeChange?.(range);
+      }
+    },
+    [mode, isRangeControlled, onRangeChange],
+  );
 
   const toggleMonthYearSelector = useCallback(() => {
     setIsMonthYearSelectorOpen((open) => !open);
   }, []);
 
+  const currentEffectiveRange = mode === "modal" ? draftRange : activeSelectedRange;
+  const currentEffectiveDate = mode === "modal" ? draftDate : activeSelectedDate;
+
   return {
-    selectedDate: mode === "modal" ? draftDate : activeSelectedDate,
+    selectionType,
+    selectedDate: currentEffectiveDate,
+    selectedRange: currentEffectiveRange,
     displayedYear,
     displayedMonth,
     isMonthYearSelectorOpen,
     isModalVisible,
     draftDate,
+    draftRange,
     isDateDisabled,
     isDayDisabled,
     goToNextMonth,
@@ -251,6 +391,7 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
     closeModal,
     confirmDraft,
     cancelDraft,
+    setRange,
     toggleMonthYearSelector,
     setDisplayedYear,
     setDisplayedMonth,

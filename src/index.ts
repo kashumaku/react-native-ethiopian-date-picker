@@ -11,6 +11,8 @@ export {
   resolveTheme,
 } from "./components";
 
+export type { DayRangePosition } from "./components";
+
 // Calendar Mathematics & Engine
 export {
   isEthiopianLeapYear,
@@ -42,12 +44,15 @@ export {
   isSameGregorianDay,
   isBeforeGregorianDay,
   isAfterGregorianDay,
+  isSameOrBeforeGregorianDay,
+  isSameOrAfterGregorianDay,
+  isBetweenGregorianDays,
   isToday,
   isSameEthiopianDay,
 } from "./conversion";
 
 // Formatting
-export { formatEthiopianDate } from "./formatting";
+export { formatEthiopianDate, formatEthiopianDateRange } from "./formatting";
 
 // Localization
 export { getLocalization, en, am } from "./localization";
@@ -58,6 +63,7 @@ export { useEthiopianDatePicker } from "./hooks/useEthiopianDatePicker";
 // Types
 export type {
   EthiopianDate,
+  EthiopianDateRange,
   EthiopianMonth,
   EthiopianWeekday,
   EthiopianLocale,

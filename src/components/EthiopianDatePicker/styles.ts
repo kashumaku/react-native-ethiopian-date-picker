@@ -4,28 +4,37 @@ import type { EthiopianDatePickerTheme } from "../../types";
 export type ResolvedTheme = Required<EthiopianDatePickerTheme>;
 
 export const defaultTheme: ResolvedTheme = {
-  primaryColor: "#1A56DB",
+  primaryColor: "#C7FF00",
   textColor: "#111827",
   mutedTextColor: "#6B7280",
   backgroundColor: "#FFFFFF",
   surfaceColor: "#F3F4F6",
-  selectedDayTextColor: "#FFFFFF",
-  selectedDayBackgroundColor: "#1A56DB",
-  todayTextColor: "#1A56DB",
-  todayBorderColor: "#1A56DB",
+  selectedDayTextColor: "#111827",
+  selectedDayBackgroundColor: "#C7FF00",
+  todayTextColor: "#111827",
+  todayBorderColor: "#C7FF00",
   disabledTextColor: "#D1D5DB",
   disabledBackgroundColor: "transparent",
   borderColor: "#E5E7EB",
   headerTextColor: "#111827",
   weekdayTextColor: "#6B7280",
-  confirmButtonColor: "#1A56DB",
+  confirmButtonColor: "#C7FF00",
   cancelButtonColor: "#6B7280",
+  rangeBackgroundColor: "#F7FEE7",
+  rangeTextColor: "#365314",
+  rangeStartEndBackgroundColor: "#C7FF00",
+  rangeStartEndTextColor: "#111827",
   borderRadius: 16,
 };
 
 export function resolveTheme(customTheme?: EthiopianDatePickerTheme): ResolvedTheme {
+  const primary = customTheme?.primaryColor ?? defaultTheme.primaryColor;
   return {
     ...defaultTheme,
+    selectedDayBackgroundColor: primary,
+    todayBorderColor: primary,
+    confirmButtonColor: primary,
+    rangeStartEndBackgroundColor: primary,
     ...customTheme,
   };
 }
@@ -38,6 +47,12 @@ export const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 380,
     alignSelf: "center",
+  },
+  modalCalendarContainer: {
+    borderWidth: 0,
+    padding: 0,
+    maxWidth: "100%",
+    backgroundColor: "transparent",
   },
   header: {
     flexDirection: "row",
@@ -69,13 +84,13 @@ export const styles = StyleSheet.create({
   },
   weekdayContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
     paddingBottom: 8,
     borderBottomWidth: StyleSheet.hairlineWidth,
     marginBottom: 8,
+    width: "100%",
   },
   weekdayCell: {
-    width: 44,
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -84,15 +99,39 @@ export const styles = StyleSheet.create({
     fontWeight: "600",
   },
   grid: {
+    width: "100%",
+  },
+  weekRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "flex-start",
+    width: "100%",
   },
   dayCellWrapper: {
-    width: `${100 / 7}%`,
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 3,
+    position: "relative",
+  },
+  rangeBackgroundStart: {
+    position: "absolute",
+    top: 3,
+    bottom: 3,
+    left: "50%",
+    right: 0,
+  },
+  rangeBackgroundEnd: {
+    position: "absolute",
+    top: 3,
+    bottom: 3,
+    left: 0,
+    right: "50%",
+  },
+  rangeBackgroundMiddle: {
+    position: "absolute",
+    top: 3,
+    bottom: 3,
+    left: 0,
+    right: 0,
   },
   dayButton: {
     width: 42,
@@ -100,6 +139,7 @@ export const styles = StyleSheet.create({
     borderRadius: 21,
     alignItems: "center",
     justifyContent: "center",
+    zIndex: 2,
   },
   dayText: {
     fontSize: 15,

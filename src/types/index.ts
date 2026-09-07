@@ -10,6 +10,14 @@ export type EthiopianDate = {
 };
 
 /**
+ * Represents a selected Gregorian date range.
+ */
+export type EthiopianDateRange = {
+  startDate: Date | null;
+  endDate: Date | null;
+};
+
+/**
  * Metadata for an Ethiopian calendar month.
  */
 export type EthiopianMonth = {
@@ -56,6 +64,10 @@ export type EthiopianDatePickerTheme = {
   weekdayTextColor?: string;
   confirmButtonColor?: string;
   cancelButtonColor?: string;
+  rangeBackgroundColor?: string;
+  rangeTextColor?: string;
+  rangeStartEndBackgroundColor?: string;
+  rangeStartEndTextColor?: string;
   borderRadius?: number;
 };
 
@@ -73,20 +85,41 @@ export type FormatEthiopianDateOptions = {
  */
 export type EthiopianDatePickerProps = {
   /**
-   * The selected Gregorian date (controlled mode).
+   * Selection type: "single" for picking one date; "range" for picking start and end dates.
+   * Default is "single".
+   */
+  selectionType?: "single" | "range";
+
+  /**
+   * The selected Gregorian date (controlled mode when selectionType="single").
    */
   value?: Date | null;
 
   /**
-   * Initial Gregorian date (uncontrolled mode).
+   * Initial Gregorian date (uncontrolled mode when selectionType="single").
    */
   defaultValue?: Date | null;
 
   /**
-   * Callback fired when a date is selected and confirmed.
+   * Callback fired when a date is selected and confirmed in single mode.
    * Returns a standard JavaScript Date representing local midnight of the selected Ethiopian calendar day.
    */
   onChange?: (date: Date) => void;
+
+  /**
+   * The selected Gregorian date range (controlled mode when selectionType="range").
+   */
+  selectedRange?: EthiopianDateRange | null;
+
+  /**
+   * Initial Gregorian date range (uncontrolled mode when selectionType="range").
+   */
+  defaultSelectedRange?: EthiopianDateRange | null;
+
+  /**
+   * Callback fired when a date range is selected (and confirmed in modal mode).
+   */
+  onRangeChange?: (range: EthiopianDateRange) => void;
 
   /**
    * Display locale ("en" or "am"). Default is "en".
@@ -198,4 +231,5 @@ export type EthiopianDatePickerRef = {
   close?: () => void;
   goToToday?: () => void;
   goToDate?: (date: Date) => void;
+  setRange?: (range: EthiopianDateRange) => void;
 };

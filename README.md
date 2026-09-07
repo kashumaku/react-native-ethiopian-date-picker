@@ -13,12 +13,13 @@ A modern, production-ready, fully accessible Ethiopian calendar date picker for 
 
 - 📅 **Accurate Ethiopian Calendar Math** — Full support for all 13 months (Meskerem through Pagumen), precise leap year handling (Pagumen 5/6 days), and Julian Day Number (JDN) conversions.
 - 🔄 **Bidirectional Date Conversion** — Convert effortlessly between standard JavaScript `Date` (Gregorian) and Ethiopian date representations (`{ year, month, day }`).
+- ↔️ **Date Range Picker (`selectionType="range"`)** — Seamlessly select start and end date ranges with continuous ribbon highlighting.
 - 🌐 **Built-in English & Amharic (አማርኛ)** — Native Amharic script and English month/weekday names, labels, and formats.
 - 🎨 **Deeply Customizable Theming** — Seamless light/dark modes, custom color palettes, surface styling, and custom border radiuses.
 - 🪟 **Inline & Modal Modes** — Display directly embedded inside your view hierarchy or present as a modal dialog with confirmation workflows.
 - 🪝 **Headless Hook (`useEthiopianDatePicker`)** — Complete UI freedom! Use our reactive state engine to build custom layouts, dropdowns, wheel pickers, or custom grids.
 - 🚫 **Flexible Date Constraints** — Enforce `minimumDate`, `maximumDate`, disabled date arrays, or dynamic predicate functions `(date: Date) => boolean`.
-- 📝 **Date Formatter Utility** — Flexible `formatEthiopianDate` with preset formats (`short`, `medium`, `long`, `full`) and custom pattern tokens (`YYYY`, `MMMM`, `DD`, `dddd`, etc.).
+- 📝 **Date Formatter Utility** — Flexible `formatEthiopianDate` and `formatEthiopianDateRange` with preset formats and custom pattern tokens.
 - ♿ **Accessible & Mobile-First** — Built with native accessibility roles, labels, and hit targets optimized for touch screens.
 - 🛡️ **Zero Runtime Dependencies & Tree-Shakeable** — Pure React Native and TypeScript. Ships with ESM, CommonJS, and TypeScript declaration maps.
 
@@ -130,7 +131,45 @@ export default function ModalExample() {
 
 ---
 
-### 3. Localized in Amharic (አማርኛ)
+### 3. Date Range Picker Mode
+
+Set `selectionType="range"` to allow selecting a start date and an end date:
+
+```tsx
+import React, { useState } from "react";
+import { View, Text } from "react-native";
+import {
+  EthiopianDatePicker,
+  formatEthiopianDateRange,
+  type EthiopianDateRange,
+} from "react-native-ethiopian-date-picker";
+
+export default function RangeExample() {
+  const [range, setRange] = useState<EthiopianDateRange>({
+    startDate: null,
+    endDate: null,
+  });
+
+  return (
+    <View style={{ padding: 20 }}>
+      <Text style={{ textAlign: "center", marginBottom: 12, fontWeight: "600" }}>
+        Selected Range: {formatEthiopianDateRange(range, { locale: "am" }) || "None"}
+      </Text>
+
+      <EthiopianDatePicker
+        selectionType="range"
+        selectedRange={range}
+        onRangeChange={(newRange) => setRange(newRange)}
+        locale="am"
+      />
+    </View>
+  );
+}
+```
+
+---
+
+### 4. Localized in Amharic (አማርኛ)
 
 Simply pass `locale="am"`:
 
@@ -364,11 +403,16 @@ const grid = getEthiopianMonthGrid(2019, 1);
 
 | Prop | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `value` | `Date \| null` | `undefined` | Controlled Gregorian Date value. |
-| `defaultValue` | `Date \| null` | `new Date()` | Initial Gregorian Date for uncontrolled mode. |
-| `onChange` | `(date: Date) => void` | `undefined` | Callback fired when a date is selected and confirmed. |
+| `selectionType` | `"single" \| "range"` | `"single"` | Single date picker or date range selection mode. |
+| `value` | `Date \| null` | `undefined` | Controlled Gregorian Date value (when `selectionType="single"`). |
+| `defaultValue` | `Date \| null` | `new Date()` | Initial Gregorian Date for uncontrolled single mode. |
+| `onChange` | `(date: Date) => void` | `undefined` | Callback fired when a single date is selected. |
+| `selectedRange` | `EthiopianDateRange \| null` | `undefined` | Controlled Gregorian date range (when `selectionType="range"`). |
+| `defaultSelectedRange` | `EthiopianDateRange \| null` | `{ startDate: null, endDate: null }` | Initial Gregorian date range for uncontrolled range mode. |
+| `onRangeChange` | `(range: EthiopianDateRange) => void` | `undefined` | Callback fired when a date range is selected/confirmed. |
 | `locale` | `"en" \| "am"` | `"en"` | Language locale for month names, weekdays, and buttons. |
 | `mode` | `"inline" \| "modal"` | `"inline"` | Display mode: embedded in page or in a modal popup. |
+| `defaultVisible` | `boolean` | `false` | Initial visibility state for modal mode when uncontrolled. |
 | `visible` | `boolean` | `undefined` | Controls modal visibility when `mode="modal"`. |
 | `onOpen` | `() => void` | `undefined` | Fired when modal opens. |
 | `onClose` | `() => void` | `undefined` | Fired when modal closes or is cancelled. |
@@ -393,21 +437,25 @@ const grid = getEthiopianMonthGrid(2019, 1);
 
 | Property | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `primaryColor` | `string` | `"#1A56DB"` | Primary accent color for active items and buttons. |
+| `primaryColor` | `string` | `"#C7FF00"` | Primary accent color for active items and buttons. |
 | `textColor` | `string` | `"#111827"` | Main text color for numbers and headers. |
 | `mutedTextColor` | `string` | `"#6B7280"` | Muted text color for secondary labels. |
 | `backgroundColor`| `string` | `"#FFFFFF"` | Background color for the calendar container. |
 | `surfaceColor` | `string` | `"#F3F4F6"` | Background for buttons and dropdown elements. |
-| `selectedDayBackgroundColor` | `string` | `"#1A56DB"` | Background for selected day bubble. |
-| `selectedDayTextColor` | `string` | `"#FFFFFF"` | Text color for selected day bubble. |
-| `todayTextColor` | `string` | `"#1A56DB"` | Text color for current day indicator. |
-| `todayBorderColor` | `string` | `"#1A56DB"` | Border color for current day indicator. |
+| `selectedDayBackgroundColor` | `string` | `"#C7FF00"` | Background for selected day bubble. |
+| `selectedDayTextColor` | `string` | `"#111827"` | Text color for selected day bubble. |
+| `rangeBackgroundColor` | `string` | `"#F7FEE7"` | Background for in-between days in a date range. |
+| `rangeTextColor` | `string` | `"#365314"` | Text color for in-between days in a date range. |
+| `rangeStartEndBackgroundColor` | `string` | `"#C7FF00"` | Background for range start/end days. |
+| `rangeStartEndTextColor` | `string` | `"#111827"` | Text color for range start/end days. |
+| `todayTextColor` | `string` | `"#111827"` | Text color for current day indicator. |
+| `todayBorderColor` | `string` | `"#C7FF00"` | Border color for current day indicator. |
 | `disabledTextColor` | `string` | `"#D1D5DB"` | Text color for disabled date cells. |
 | `disabledBackgroundColor` | `string` | `"transparent"`| Background for disabled date cells. |
 | `borderColor` | `string` | `"#E5E7EB"` | Border color around container and dividers. |
 | `headerTextColor` | `string` | `"#111827"` | Text color for month & year header. |
 | `weekdayTextColor` | `string` | `"#6B7280"` | Text color for column weekday labels. |
-| `confirmButtonColor` | `string` | `"#1A56DB"` | Modal confirmation button color. |
+| `confirmButtonColor` | `string` | `"#C7FF00"` | Modal confirmation button color. |
 | `cancelButtonColor` | `string` | `"#6B7280"` | Modal cancel button color. |
 | `borderRadius` | `number` | `16` | Border radius for container and cells. |
 
