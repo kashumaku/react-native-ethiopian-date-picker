@@ -2,7 +2,7 @@
   "name": "react-native-ethiopian-date-picker",
   "version": "0.1.0",
   "description": "Production-ready Ethiopian calendar date picker for React Native and Expo",
-  "main": "./index.ts",
+  "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "exports": {
