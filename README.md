@@ -437,25 +437,26 @@ const grid = getEthiopianMonthGrid(2019, 1);
 
 | Property | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `primaryColor` | `string` | `"#C7FF00"` | Primary accent color for active items and buttons. |
+| `primaryColor` | `string` | `"#01848a"` | Primary accent color for active items and buttons. |
 | `textColor` | `string` | `"#111827"` | Main text color for numbers and headers. |
 | `mutedTextColor` | `string` | `"#6B7280"` | Muted text color for secondary labels. |
 | `backgroundColor`| `string` | `"#FFFFFF"` | Background color for the calendar container. |
 | `surfaceColor` | `string` | `"#F3F4F6"` | Background for buttons and dropdown elements. |
-| `selectedDayBackgroundColor` | `string` | `"#C7FF00"` | Background for selected day bubble. |
-| `selectedDayTextColor` | `string` | `"#111827"` | Text color for selected day bubble. |
-| `rangeBackgroundColor` | `string` | `"#F7FEE7"` | Background for in-between days in a date range. |
-| `rangeTextColor` | `string` | `"#365314"` | Text color for in-between days in a date range. |
-| `rangeStartEndBackgroundColor` | `string` | `"#C7FF00"` | Background for range start/end days. |
-| `rangeStartEndTextColor` | `string` | `"#111827"` | Text color for range start/end days. |
-| `todayTextColor` | `string` | `"#111827"` | Text color for current day indicator. |
-| `todayBorderColor` | `string` | `"#C7FF00"` | Border color for current day indicator. |
+| `selectedDayBackgroundColor` | `string` | `"#01848a"` | Background for selected day bubble. |
+| `selectedDayTextColor` | `string` | `"#FFFFFF"` | Text color for selected day bubble. |
+| `rangeBackgroundColor` | `string` | `"#E6F3F4"` | Background for in-between days in a date range. |
+| `rangeTextColor` | `string` | `"#01565A"` | Text color for in-between days in a date range. |
+| `rangeStartEndBackgroundColor` | `string` | `"#01848a"` | Background for range start/end days. |
+| `rangeStartEndTextColor` | `string` | `"#FFFFFF"` | Text color for range start/end days. |
+| `todayTextColor` | `string` | `"#01848a"` | Text color for current day indicator in calendar grid. |
+| `todayBorderColor` | `string` | `"#01848a"` | Border color for current day indicator in calendar grid. |
+| `todayButtonTextColor` | `string` | `"#01848a"` | Text color for the Today shortcut button. |
 | `disabledTextColor` | `string` | `"#D1D5DB"` | Text color for disabled date cells. |
 | `disabledBackgroundColor` | `string` | `"transparent"`| Background for disabled date cells. |
 | `borderColor` | `string` | `"#E5E7EB"` | Border color around container and dividers. |
 | `headerTextColor` | `string` | `"#111827"` | Text color for month & year header. |
 | `weekdayTextColor` | `string` | `"#6B7280"` | Text color for column weekday labels. |
-| `confirmButtonColor` | `string` | `"#C7FF00"` | Modal confirmation button color. |
+| `confirmButtonColor` | `string` | `"#01848a"` | Modal confirmation button color. |
 | `cancelButtonColor` | `string` | `"#6B7280"` | Modal cancel button color. |
 | `borderRadius` | `number` | `16` | Border radius for container and cells. |
 

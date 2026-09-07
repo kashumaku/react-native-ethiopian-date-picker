@@ -145,7 +145,7 @@ export const EthiopianDatePicker = forwardRef<
             <Text
               style={[
                 styles.todayButtonText,
-                { color: resolvedTheme.textColor },
+                { color: resolvedTheme.todayButtonTextColor },
               ]}
             >
               {todayButtonText ?? dict.today}

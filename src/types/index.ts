@@ -57,6 +57,7 @@ export type EthiopianDatePickerTheme = {
   selectedDayBackgroundColor?: string;
   todayTextColor?: string;
   todayBorderColor?: string;
+  todayButtonTextColor?: string;
   disabledTextColor?: string;
   disabledBackgroundColor?: string;
   borderColor?: string;
