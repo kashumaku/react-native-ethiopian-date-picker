@@ -36,6 +36,14 @@
   ],
   "author": "kassahun",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kashumaku/react-native-ethiopian-date-picker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kashumaku/react-native-ethiopian-date-picker/issues"
+  },
+  "homepage": "https://github.com/kashumaku/react-native-ethiopian-date-picker#readme",
   "scripts": {
     "build": "tsup",
     "test": "jest",
