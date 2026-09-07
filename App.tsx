@@ -1,243 +1,210 @@
-import React, { useState } from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Pressable, ScrollView } from 'react-native';
+import React, { useState } from "react";
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, Text, View, TextInput, Pressable, ScrollView } from "react-native";
 import {
   EthiopianDatePicker,
   formatEthiopianDate,
   formatEthiopianDateRange,
   type EthiopianDateRange,
-} from './src';
+  type EthiopianLocale,
+} from "./src";
+
+type Mode = "sheet" | "modal" | "inline";
+type PickerType = "grad" | "exp" | null;
 
 export default function App() {
-  const [pickerType, setPickerType] = useState<'single' | 'range'>('range');
-  const [modalVisible, setModalVisible] = useState(false);
-  const [sheetVisible, setSheetVisible] = useState(false);
-  const [singleDate, setSingleDate] = useState<Date>(new Date());
-  const [dateRange, setDateRange] = useState<EthiopianDateRange>({
-    startDate: new Date(),
+  const [mode, setMode] = useState<Mode>("sheet");
+  const [locale, setLocale] = useState<EthiopianLocale>("am");
+  const [activePicker, setActivePicker] = useState<PickerType>(null);
+
+  // Form Fields
+  const [name, setName] = useState("");
+  const [gradDate, setGradDate] = useState<Date | null>(null);
+  const [expRange, setExpRange] = useState<EthiopianDateRange>({
+    startDate: null,
     endDate: null,
   });
 
+  const isAm = locale === "am";
+  const gradText = gradDate ? formatEthiopianDate(gradDate, { locale, format: "long" }) : "";
+  const expText = formatEthiopianDateRange(expRange, { locale }) || "";
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Ethiopian Date Picker</Text>
+    <View style={[styles.container,{
+      paddingTop:35,
+    }]}>
+      <StatusBar style="dark" />
 
-      {/* Mode Switcher Tabs */}
-      <View style={styles.tabContainer}>
-        <Pressable
-          style={[styles.tab, pickerType === 'single' && styles.activeTab]}
-          onPress={() => setPickerType('single')}
-        >
-          <Text style={[styles.tabText, pickerType === 'single' && styles.activeTabText]}>
-            Single Date (ነጠላ)
-          </Text>
+      {/* Screen Navigation Header */}
+      <View style={styles.navHeader}>
+        <Pressable style={styles.navIconBtn}>
+          <Text style={styles.navIcon}>‹</Text>
         </Pressable>
-        <Pressable
-          style={[styles.tab, pickerType === 'range' && styles.activeTab]}
-          onPress={() => setPickerType('range')}
-        >
-          <Text style={[styles.tabText, pickerType === 'range' && styles.activeTabText]}>
-            Date Range (ክልል)
-          </Text>
+        <Text style={styles.navTitle}>Ethio Date Picker</Text>
+        <Pressable style={styles.navIconBtn}>
+          <Text style={styles.navPlusIcon}>+</Text>
         </Pressable>
       </View>
 
-      {/* Display Current Selection */}
-      <View style={styles.card}>
-        <Text style={styles.cardLabel}>Current Selection:</Text>
-        <Text style={styles.cardValue}>
-          {pickerType === 'single'
-            ? formatEthiopianDate(singleDate, { locale: 'am', format: 'long' })
-            : formatEthiopianDateRange(dateRange, { locale: 'am' }) || 'No range selected'}
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        {/* Title */}
+        <Text style={styles.title}>{isAm ? "የባለሙያ መረጃ" : "Professional Profile"}</Text>
+        <Text style={styles.subtitle}>
+          {isAm ? "እባክዎ መረጃዎን በኢትዮጵያ የቀን መቁጠሪያ ያስገቡ" : "Fill out your details using Ethiopian Calendar"}
         </Text>
-      </View>
 
-      {/* Presentation Trigger Buttons */}
-      <View style={styles.buttonRow}>
-        <Pressable style={styles.openButton} onPress={() => setModalVisible(true)}>
-          <Text style={styles.openButtonText}>
-            {pickerType === 'single' ? 'Modal Dialog' : 'Modal Range'}
-          </Text>
-        </Pressable>
+        {/* 1. Full Name Input (Underline only) */}
+        <View style={styles.fieldGroup}>
+          <Text style={styles.label}>{isAm ? "ሙሉ ስም" : "FULL NAME"}</Text>
+          <TextInput
+            style={styles.underlineInput}
+            value={name}
+            onChangeText={setName}
+            placeholder={isAm ? "ስምዎን ያስገቡ" : "Enter your full name"}
+            placeholderTextColor="#A1A1AA"
+          />
+        </View>
 
-        <Pressable style={[styles.openButton, styles.sheetButton]} onPress={() => setSheetVisible(true)}>
-          <Text style={[styles.openButtonText, styles.sheetButtonText]}>
-            {pickerType === 'single' ? 'Bottom Sheet' : 'Sheet Range'}
-          </Text>
-        </Pressable>
-      </View>
+        {/* 2. Date of Graduation Input (Underline only) */}
+        <View style={styles.fieldGroup}>
+          <Text style={styles.label}>{isAm ? "የምረቃ ቀን" : "DATE OF GRADUATION"}</Text>
+          <Pressable
+            style={[styles.underlineInput, activePicker === "grad" && styles.underlineInputActive]}
+            onPress={() => setActivePicker("grad")}
+          >
+            <Text style={[styles.inputText, !gradDate && styles.placeholderText]}>
+              {gradText || (isAm ? "የምረቃ ቀን ይምረጡ" : "Select graduation date")}
+            </Text>
+            <Text style={styles.fieldIcon}>🎓</Text>
+          </Pressable>
+        </View>
 
-      {/* Modal Picker */}
-      <EthiopianDatePicker
-        mode="modal"
-        visible={modalVisible}
-        selectionType={pickerType}
-        value={singleDate}
-        selectedRange={dateRange}
-        locale="am"
-        title={pickerType === 'single' ? 'ቀን ይምረጡ' : 'የቀን ክልል ይምረጡ'}
-        confirmText="አረጋግጥ"
-        cancelText="ይቅር"
-        showTodayButton
-        onChange={(date) => {
-          setSingleDate(date);
-          setModalVisible(false);
-        }}
-        onRangeChange={(range) => {
-          setDateRange(range);
-          if (range.startDate && range.endDate) {
-            setModalVisible(false);
-          }
-        }}
-        onClose={() => setModalVisible(false)}
-      />
+        {/* 3. Experience Year Range Input (Underline only) */}
+        <View style={styles.fieldGroup}>
+          <Text style={styles.label}>{isAm ? "የስራ ልምድ ዓመታት ክልል" : "EXPERIENCE YEAR RANGE"}</Text>
+          <Pressable
+            style={[styles.underlineInput, activePicker === "exp" && styles.underlineInputActive]}
+            onPress={() => setActivePicker("exp")}
+          >
+            <Text style={[styles.inputText, !expRange.startDate && styles.placeholderText]}>
+              {expText || (isAm ? "የልምድ ክልል ይምረጡ" : "Select experience range")}
+            </Text>
+            <Text style={styles.fieldIcon}>💼</Text>
+          </Pressable>
+        </View>
 
-      {/* Bottom Sheet Picker */}
-      <EthiopianDatePicker
-        mode="sheet"
-        visible={sheetVisible}
-        selectionType={pickerType}
-        value={singleDate}
-        selectedRange={dateRange}
-        locale="am"
-        title={pickerType === 'single' ? 'ቀን ይምረጡ' : 'የቀን ክልል ይምረጡ'}
-        confirmText="አረጋግጥ"
-        cancelText="ይቅር"
-        showTodayButton
-        onChange={(date) => {
-          setSingleDate(date);
-          setSheetVisible(false);
-        }}
-        onRangeChange={(range) => {
-          setDateRange(range);
-          if (range.startDate && range.endDate) {
-            setSheetVisible(false);
-          }
-        }}
-        onClose={() => setSheetVisible(false)}
-      />
+        {/* Inline Picker View (when inline mode active) */}
+        {mode === "inline" && activePicker && (
+          <View style={styles.inlineBox}>
+            <Text style={styles.inlineTitle}>
+              {activePicker === "grad"
+                ? isAm ? "የምረቃ ቀን መምረጫ" : "Select Graduation Date"
+                : isAm ? "የስራ ልምድ ክልል መምረጫ" : "Select Experience Range"}
+            </Text>
+            <EthiopianDatePicker
+              mode="inline"
+              selectionType={activePicker === "exp" ? "range" : "single"}
+              value={gradDate}
+              selectedRange={expRange}
+              locale={locale}
+              showTodayButton
+              onChange={(d) => setGradDate(d)}
+              onRangeChange={(r) => setExpRange(r)}
+            />
+          </View>
+        )}
 
-      {/* Inline Demo Preview */}
-      <View style={styles.inlineSection}>
-        <Text style={styles.sectionTitle}>Inline Preview</Text>
-        <EthiopianDatePicker
-          mode="inline"
-          selectionType={pickerType}
-          value={singleDate}
-          selectedRange={dateRange}
-          locale="am"
-          showTodayButton
-          onChange={(date) => setSingleDate(date)}
-          onRangeChange={(range) => setDateRange(range)}
-          style={{
-            elevation:0,
-            borderWidth:0
-          }}
-        />
-        
-      </View>
-
-      <StatusBar style="auto" />
-    </ScrollView>
+        {/* Modal / Sheet Overlay Picker */}
+        {mode !== "inline" && activePicker && (
+          <EthiopianDatePicker
+            mode={mode}
+            visible={true}
+            selectionType={activePicker === "exp" ? "range" : "single"}
+            value={gradDate}
+            selectedRange={expRange}
+            locale={locale}
+            showTodayButton
+            title={
+              activePicker === "grad"
+                ? isAm ? "የምረቃ ቀን ይምረጡ" : "Select Date of Graduation"
+                : isAm ? "የስራ ልምድ ክልል ይምረጡ" : "Select Experience Range"
+            }
+            confirmText={isAm ? "አረጋግጥ" : "Confirm"}
+            cancelText={isAm ? "ይቅር" : "Cancel"}
+            onChange={(d) => {
+              setGradDate(d);
+              setActivePicker(null);
+            }}
+            onRangeChange={(r) => {
+              setExpRange(r);
+              if (r.startDate && r.endDate) setActivePicker(null);
+            }}
+            onClose={() => setActivePicker(null)}
+          />
+        )}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    backgroundColor: '#F9FAFB',
-    alignItems: 'center',
-    paddingVertical: 40,
+  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  navHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F4F4F5",
+    backgroundColor: "#FFFFFF",
   },
-  title: {
+  navIconBtn: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 20,
+  },
+  navIcon: {
+    fontSize: 32,
+    fontWeight: "300",
+    color: "#09090B",
+    marginTop: -4,
+  },
+  navTitle: {
+    fontSize: 17,
+    fontWeight: "700",
+    color: "#09090B",
+    letterSpacing: -0.3,
+  },
+  navPlusIcon: {
     fontSize: 24,
-    fontWeight: '800',
-    color: '#111827',
-    marginBottom: 20,
+    fontWeight: "400",
+    color: "#09090B",
   },
-  tabContainer: {
-    flexDirection: 'row',
-    backgroundColor: '#E5E7EB',
-    borderRadius: 12,
-    padding: 4,
-    marginBottom: 20,
+  scroll: { padding: 24, maxWidth: 460, width: "100%", alignSelf: "center" },
+  title: { fontSize: 26, fontWeight: "800", color: "#09090B", letterSpacing: -0.5 },
+  subtitle: { fontSize: 14, color: "#71717A", marginTop: 4, marginBottom: 28 },
+  fieldGroup: { marginBottom: 24 },
+  label: { fontSize: 12, fontWeight: "700", color: "#71717A", letterSpacing: 0.6, marginBottom: 8 },
+  underlineInput: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderBottomWidth: 1.5,
+    borderBottomColor: "#E4E4E7",
+    paddingVertical: 12,
+    fontSize: 17,
+    fontWeight: "600",
+    color: "#09090B",
   },
-  tab: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+  underlineInputActive: {
+    borderBottomColor: "#01848a",
   },
-  activeTab: {
-    backgroundColor: '#C7FF00',
-  },
-  tabText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#4B5563',
-  },
-  activeTabText: {
-    color: '#111827',
-    fontWeight: '700',
-  },
-  card: {
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderRadius: 12,
-    width: '100%',
-    maxWidth: 380,
-    alignItems: 'center',
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  cardLabel: {
-    fontSize: 13,
-    color: '#6B7280',
-    marginBottom: 4,
-    fontWeight: '500',
-  },
-  cardValue: {
-    fontSize: 16,
-    color: '#111827',
-    fontWeight: '700',
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 24,
-  },
-  openButton: {
-    backgroundColor: '#C7FF00',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  sheetButton: {
-    backgroundColor: '#111827',
-  },
-  sheetButtonText: {
-    color: '#FFFFFF',
-  },
-  openButtonText: {
-    color: '#111827',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  inlineSection: {
-    width: '100%',
-    maxWidth: 380,
-    alignItems: 'center',
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#374151',
-    marginBottom: 12,
-  },
+  inputText: { fontSize: 17, fontWeight: "600", color: "#09090B", flex: 1 },
+  placeholderText: { color: "#A1A1AA", fontWeight: "400" },
+  fieldIcon: { fontSize: 18, marginLeft: 8 },
+  inlineBox: { marginTop: 12, alignItems: "center" },
+  inlineTitle: { fontSize: 14, fontWeight: "700", color: "#09090B", marginBottom: 12 },
 });
