@@ -19,6 +19,7 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
     maximumDate,
     disabledDates,
     mode = "inline",
+    defaultVisible = false,
     visible: controlledVisible,
     onOpen,
     onClose,
@@ -44,7 +45,7 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
   const [isMonthYearSelectorOpen, setIsMonthYearSelectorOpen] = useState(false);
 
   // Modal mode state
-  const [uncontrolledModalVisible, setUncontrolledModalVisible] = useState(false);
+  const [uncontrolledModalVisible, setUncontrolledModalVisible] = useState(defaultVisible);
   const isModalVisible = controlledVisible !== undefined ? controlledVisible : uncontrolledModalVisible;
   const [draftDate, setDraftDate] = useState<Date | null>(activeSelectedDate);
 

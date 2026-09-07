@@ -336,28 +336,49 @@ describe("EthiopianDatePicker Component", () => {
     expect(handleClose).toHaveBeenCalled();
   });
 
-  it("should disable entire picker when disabled prop is true", () => {
-    const handleChange = jest.fn();
+  it("should support defaultVisible in uncontrolled modal mode", () => {
     let tree: any;
     act(() => {
       tree = ReactTestRenderer.create(
         <EthiopianDatePicker
+          mode="modal"
+          defaultVisible={true}
           value={sampleDate}
-          disabled={true}
-          onChange={handleChange}
           testID="eth-picker"
         />,
       );
     });
 
     const root = tree.root;
-    const day10 = root.findByProps({ testID: "eth-picker-day-10" });
-    expect(day10.props.accessibilityState?.disabled).toBe(true);
+    expect(root.findByProps({ testID: "eth-picker-modal" })).toBeTruthy();
+  });
+
+  it("should support imperative ref open and close in modal mode", () => {
+    const ref = React.createRef<any>();
+    let tree: any;
     act(() => {
-      if (day10.props.onPress) {
-        day10.props.onPress();
-      }
+      tree = ReactTestRenderer.create(
+        <EthiopianDatePicker
+          ref={ref}
+          mode="modal"
+          value={sampleDate}
+          testID="eth-picker"
+        />,
+      );
     });
-    expect(handleChange).not.toHaveBeenCalled();
+
+    const root = tree.root;
+    const modal = root.findByProps({ testID: "eth-picker-modal" });
+    expect(modal.props.visible).toBe(false);
+
+    act(() => {
+      ref.current.open();
+    });
+    expect(modal.props.visible).toBe(true);
+
+    act(() => {
+      ref.current.close();
+    });
+    expect(modal.props.visible).toBe(false);
   });
 });

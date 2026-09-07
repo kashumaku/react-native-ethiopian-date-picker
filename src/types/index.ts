@@ -115,6 +115,11 @@ export type EthiopianDatePickerProps = {
   disabledDates?: Date[] | ((date: Date) => boolean);
 
   /**
+   * Initial visibility for modal mode when uncontrolled. Default is false.
+   */
+  defaultVisible?: boolean;
+
+  /**
    * Controls modal visibility when mode="modal".
    */
   visible?: boolean;
