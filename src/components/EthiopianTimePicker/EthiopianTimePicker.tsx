@@ -392,7 +392,7 @@ export const EthiopianTimePicker = forwardRef<
           selectedIndex={selectedHourIndex}
           onSelect={onSelectHour}
           formatLabel={(h) => String(h).padStart(2, "0")}
-          testIDPrefix={`${testID}-opt`}
+          testIDPrefix={`${testID}-hour`}
           primaryColor={resolvedTheme.primaryColor}
           textColor={resolvedTheme.textColor}
           mutedTextColor={resolvedTheme.mutedTextColor}
@@ -408,7 +408,7 @@ export const EthiopianTimePicker = forwardRef<
           selectedIndex={selectedMinuteIndex}
           onSelect={onSelectMinute}
           formatLabel={(m) => String(m).padStart(2, "0")}
-          testIDPrefix={`${testID}-opt`}
+          testIDPrefix={`${testID}-minute`}
           primaryColor={resolvedTheme.primaryColor}
           textColor={resolvedTheme.textColor}
           mutedTextColor={resolvedTheme.mutedTextColor}

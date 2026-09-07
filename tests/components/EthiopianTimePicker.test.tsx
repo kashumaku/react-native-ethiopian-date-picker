@@ -80,7 +80,7 @@ describe("EthiopianTimePicker Component", () => {
     });
 
     const root = tree.root;
-    const opt4 = root.findByProps({ testID: "eth-time-opt-4" });
+    const opt4 = root.findByProps({ testID: "eth-time-hour-4" });
     act(() => {
       opt4.props.onPress();
     });
@@ -91,7 +91,7 @@ describe("EthiopianTimePicker Component", () => {
       expect.any(Date)
     );
 
-    const opt30 = root.findByProps({ testID: "eth-time-opt-30" });
+    const opt30 = root.findByProps({ testID: "eth-time-minute-30" });
     act(() => {
       opt30.props.onPress();
     });
@@ -146,7 +146,7 @@ describe("EthiopianTimePicker Component", () => {
     });
 
     const root = tree.root;
-    const opt11 = root.findByProps({ testID: "eth-time-opt-11" });
+    const opt11 = root.findByProps({ testID: "eth-time-hour-11" });
     act(() => {
       opt11.props.onPress();
     });
