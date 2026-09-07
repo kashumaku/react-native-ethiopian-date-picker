@@ -2,6 +2,7 @@
 module.exports = {
   preset: "ts-jest",
   testEnvironment: "node",
+  setupFiles: ["<rootDir>/tests/setup.ts"],
   transform: {
     "^.+\\.(ts|tsx)$": [
       "ts-jest",
@@ -10,7 +11,7 @@ module.exports = {
           jsx: "react-jsx",
           esModuleInterop: true,
           moduleResolution: "bundler",
-          ignoreDeprecations: "6.0",
+          ignoreDeprecations: "5.0",
         },
       },
     ],

@@ -1,5 +1,25 @@
-export const en = {
-  locale: "en" as const,
+import type { EthiopianLocale } from "../types";
+
+export interface LocalizationStrings {
+  locale: EthiopianLocale;
+  today: string;
+  cancel: string;
+  confirm: string;
+  selectDate: string;
+  year: string;
+  month: string;
+  previousMonth: string;
+  nextMonth: string;
+  previousYear: string;
+  nextYear: string;
+  months: string[];
+  shortMonths: string[];
+  weekdays: string[];
+  shortWeekdays: string[];
+}
+
+export const en: LocalizationStrings = {
+  locale: "en",
   today: "Today",
   cancel: "Cancel",
   confirm: "Confirm",
@@ -51,5 +71,3 @@ export const en = {
   ],
   shortWeekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
 };
-
-export type LocalizationStrings = typeof en;
