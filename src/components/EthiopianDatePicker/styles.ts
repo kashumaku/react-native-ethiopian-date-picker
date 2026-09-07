@@ -228,6 +228,33 @@ export const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 5,
   },
+  // Sheet styles
+  sheetOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "flex-end",
+  },
+  sheetContent: {
+    width: "100%",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    padding: 20,
+    paddingBottom: 28,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  sheetHandle: {
+    width: 40,
+    height: 5,
+    borderRadius: 3,
+    alignSelf: "center",
+    marginBottom: 12,
+  },
   modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",

@@ -238,4 +238,52 @@ describe("EthiopianDatePicker Range Picker Mode", () => {
       endDate: sampleEnd,
     });
   });
+
+  it("should support Sheet mode with Range selection and Confirm", () => {
+    const handleRangeChange = jest.fn();
+    const handleClose = jest.fn();
+    let tree: any;
+    act(() => {
+      tree = ReactTestRenderer.create(
+        <EthiopianDatePicker
+          mode="sheet"
+          visible={true}
+          selectionType="range"
+          defaultSelectedRange={{ startDate: sampleStart, endDate: sampleEnd }}
+          onRangeChange={handleRangeChange}
+          onClose={handleClose}
+          testID="eth-picker"
+        />,
+      );
+    });
+
+    const root = tree.root;
+    expect(root.findByProps({ testID: "eth-picker-modal" })).toBeTruthy();
+    expect(root.findByProps({ testID: "eth-picker-sheet-handle" })).toBeTruthy();
+
+    // Select start day 5 Meskerem
+    const day5 = root.findByProps({ testID: "eth-picker-day-5" });
+    act(() => {
+      day5.props.onPress();
+    });
+    // Select end day 12 Meskerem
+    const day12 = root.findByProps({ testID: "eth-picker-day-12" });
+    act(() => {
+      day12.props.onPress();
+    });
+
+    expect(handleRangeChange).not.toHaveBeenCalled();
+
+    // Confirm
+    const confirmBtn = root.findByProps({ testID: "eth-picker-confirm-btn" });
+    act(() => {
+      confirmBtn.props.onPress();
+    });
+
+    expect(handleRangeChange).toHaveBeenCalledTimes(1);
+    const confirmed = handleRangeChange.mock.calls[0][0];
+    expect(toEthiopian(confirmed.startDate)).toEqual({ year: 2019, month: 1, day: 5 });
+    expect(toEthiopian(confirmed.endDate)).toEqual({ year: 2019, month: 1, day: 12 });
+    expect(handleClose).toHaveBeenCalled();
+  });
 });

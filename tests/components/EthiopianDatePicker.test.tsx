@@ -381,4 +381,122 @@ describe("EthiopianDatePicker Component", () => {
     });
     expect(modal.props.visible).toBe(false);
   });
+
+  it("should render correctly in sheet mode with slide animation and handle bar", () => {
+    let tree: any;
+    act(() => {
+      tree = ReactTestRenderer.create(
+        <EthiopianDatePicker
+          mode="sheet"
+          visible={true}
+          value={sampleDate}
+          testID="eth-picker"
+        />,
+      );
+    });
+
+    const root = tree.root;
+    const modal = root.findByProps({ testID: "eth-picker-modal" });
+    expect(modal).toBeTruthy();
+    expect(modal.props.animationType).toBe("slide");
+    expect(root.findByProps({ testID: "eth-picker-sheet-handle" })).toBeTruthy();
+    expect(root.findByProps({ testID: "eth-picker-backdrop" })).toBeTruthy();
+  });
+
+  it("should select date and fire onChange on Confirm in sheet mode", () => {
+    const handleChange = jest.fn();
+    const handleClose = jest.fn();
+    let tree: any;
+    act(() => {
+      tree = ReactTestRenderer.create(
+        <EthiopianDatePicker
+          mode="sheet"
+          visible={true}
+          value={sampleDate}
+          onChange={handleChange}
+          onClose={handleClose}
+          testID="eth-picker"
+        />,
+      );
+    });
+
+    const root = tree.root;
+    const day22 = root.findByProps({ testID: "eth-picker-day-22" });
+    act(() => {
+      day22.props.onPress();
+    });
+
+    expect(handleChange).not.toHaveBeenCalled();
+
+    const confirmBtn = root.findByProps({ testID: "eth-picker-confirm-btn" });
+    act(() => {
+      confirmBtn.props.onPress();
+    });
+
+    expect(handleChange).toHaveBeenCalledTimes(1);
+    const resultEth = toEthiopian(handleChange.mock.calls[0][0]);
+    expect(resultEth).toEqual({ year: 2019, month: 1, day: 22 });
+    expect(handleClose).toHaveBeenCalled();
+  });
+
+  it("should close sheet on backdrop click and discard draft", () => {
+    const handleChange = jest.fn();
+    const handleClose = jest.fn();
+    let tree: any;
+    act(() => {
+      tree = ReactTestRenderer.create(
+        <EthiopianDatePicker
+          mode="sheet"
+          visible={true}
+          value={sampleDate}
+          onChange={handleChange}
+          onClose={handleClose}
+          testID="eth-picker"
+        />,
+      );
+    });
+
+    const root = tree.root;
+    const day22 = root.findByProps({ testID: "eth-picker-day-22" });
+    act(() => {
+      day22.props.onPress();
+    });
+
+    const backdrop = root.findByProps({ testID: "eth-picker-backdrop" });
+    act(() => {
+      backdrop.props.onPress();
+    });
+
+    expect(handleChange).not.toHaveBeenCalled();
+    expect(handleClose).toHaveBeenCalled();
+  });
+
+  it("should support imperative ref open and close in sheet mode", () => {
+    const ref = React.createRef<any>();
+    let tree: any;
+    act(() => {
+      tree = ReactTestRenderer.create(
+        <EthiopianDatePicker
+          ref={ref}
+          mode="sheet"
+          value={sampleDate}
+          testID="eth-picker"
+        />,
+      );
+    });
+
+    const root = tree.root;
+    const modal = root.findByProps({ testID: "eth-picker-modal" });
+    expect(modal.props.visible).toBe(false);
+
+    act(() => {
+      ref.current.open();
+    });
+    expect(modal.props.visible).toBe(true);
+
+    act(() => {
+      ref.current.close();
+    });
+    expect(modal.props.visible).toBe(false);
+  });
 });

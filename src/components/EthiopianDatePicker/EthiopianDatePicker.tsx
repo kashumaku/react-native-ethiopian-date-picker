@@ -156,10 +156,11 @@ export const EthiopianDatePicker = forwardRef<
     </View>
   );
 
-  if (mode === "modal") {
+  if (mode === "modal" || mode === "sheet") {
     return (
       <DatePickerModal
         visible={isModalVisible}
+        presentationMode={mode}
         selectionType={selectionType}
         onClose={cancelDraft}
         onConfirm={confirmDraft}

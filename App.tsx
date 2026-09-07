@@ -11,6 +11,7 @@ import {
 export default function App() {
   const [pickerType, setPickerType] = useState<'single' | 'range'>('range');
   const [modalVisible, setModalVisible] = useState(false);
+  const [sheetVisible, setSheetVisible] = useState(false);
   const [singleDate, setSingleDate] = useState<Date>(new Date());
   const [dateRange, setDateRange] = useState<EthiopianDateRange>({
     startDate: new Date(),
@@ -51,12 +52,20 @@ export default function App() {
         </Text>
       </View>
 
-      {/* Modal Trigger Button */}
-      <Pressable style={styles.openButton} onPress={() => setModalVisible(true)}>
-        <Text style={styles.openButtonText}>
-          {pickerType === 'single' ? 'ቀን ይምረጡ (Open Single Modal)' : 'የቀን ክልል ይምረጡ (Open Range Modal)'}
-        </Text>
-      </Pressable>
+      {/* Presentation Trigger Buttons */}
+      <View style={styles.buttonRow}>
+        <Pressable style={styles.openButton} onPress={() => setModalVisible(true)}>
+          <Text style={styles.openButtonText}>
+            {pickerType === 'single' ? 'Modal Dialog' : 'Modal Range'}
+          </Text>
+        </Pressable>
+
+        <Pressable style={[styles.openButton, styles.sheetButton]} onPress={() => setSheetVisible(true)}>
+          <Text style={[styles.openButtonText, styles.sheetButtonText]}>
+            {pickerType === 'single' ? 'Bottom Sheet' : 'Sheet Range'}
+          </Text>
+        </Pressable>
+      </View>
 
       {/* Modal Picker */}
       <EthiopianDatePicker
@@ -69,19 +78,43 @@ export default function App() {
         title={pickerType === 'single' ? 'ቀን ይምረጡ' : 'የቀን ክልል ይምረጡ'}
         confirmText="አረጋግጥ"
         cancelText="ይቅር"
-showTodayButton
+        showTodayButton
         onChange={(date) => {
           setSingleDate(date);
           setModalVisible(false);
         }}
         onRangeChange={(range) => {
           setDateRange(range);
-          console.log("date range chage ", range)
           if (range.startDate && range.endDate) {
             setModalVisible(false);
           }
         }}
         onClose={() => setModalVisible(false)}
+      />
+
+      {/* Bottom Sheet Picker */}
+      <EthiopianDatePicker
+        mode="sheet"
+        visible={sheetVisible}
+        selectionType={pickerType}
+        value={singleDate}
+        selectedRange={dateRange}
+        locale="am"
+        title={pickerType === 'single' ? 'ቀን ይምረጡ' : 'የቀን ክልል ይምረጡ'}
+        confirmText="አረጋግጥ"
+        cancelText="ይቅር"
+        showTodayButton
+        onChange={(date) => {
+          setSingleDate(date);
+          setSheetVisible(false);
+        }}
+        onRangeChange={(range) => {
+          setDateRange(range);
+          if (range.startDate && range.endDate) {
+            setSheetVisible(false);
+          }
+        }}
+        onClose={() => setSheetVisible(false)}
       />
 
       {/* Inline Demo Preview */}
@@ -169,21 +202,31 @@ const styles = StyleSheet.create({
     color: '#111827',
     fontWeight: '700',
   },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 24,
+  },
   openButton: {
     backgroundColor: '#C7FF00',
     paddingVertical: 14,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
     borderRadius: 10,
-    marginBottom: 24,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
+  sheetButton: {
+    backgroundColor: '#111827',
+  },
+  sheetButtonText: {
+    color: '#FFFFFF',
+  },
   openButtonText: {
     color: '#111827',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
   },
   inlineSection: {

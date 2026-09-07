@@ -127,10 +127,10 @@ export type EthiopianDatePickerProps = {
   locale?: EthiopianLocale;
 
   /**
-   * Presentation mode: "inline" displays embedded calendar; "modal" displays in a popup dialog.
+   * Presentation mode: "inline" displays embedded calendar; "modal" displays in a popup dialog; "sheet" displays in a bottom sheet.
    * Default is "inline".
    */
-  mode?: "inline" | "modal";
+  mode?: "inline" | "modal" | "sheet";
 
   /**
    * Minimum selectable Gregorian date.
@@ -148,12 +148,12 @@ export type EthiopianDatePickerProps = {
   disabledDates?: Date[] | ((date: Date) => boolean);
 
   /**
-   * Initial visibility for modal mode when uncontrolled. Default is false.
+   * Initial visibility for modal or sheet mode when uncontrolled. Default is false.
    */
   defaultVisible?: boolean;
 
   /**
-   * Controls modal visibility when mode="modal".
+   * Controls visibility when mode is "modal" or "sheet".
    */
   visible?: boolean;
 
