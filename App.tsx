@@ -75,7 +75,7 @@ export default function App() {
         <Pressable style={styles.navIconBtn}>
           <Text style={[styles.navIcon, { color: textColor }]}>‹</Text>
         </Pressable>
-        <Text style={[styles.navTitle, { color: textColor }]}>Ethio Date Picker</Text>
+        <Text style={[styles.navTitle, { color: textColor }]}>Employee</Text>
         
         {/* Header Right Actions: Locale and Theme Switchers */}
         <View style={styles.navActions}>
