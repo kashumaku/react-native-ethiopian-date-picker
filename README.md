@@ -10,6 +10,15 @@ A modern, production-ready, fully accessible Ethiopian calendar date picker for 
 
 ---
 
+## Screenshots
+
+| 1. Overview | 2. Date Picker | 3. Date Range Picker | 4. Time Picker (Start) | 5. Time Picker (End) |
+| :---: | :---: | :---: | :---: | :---: |
+| `01-demo-overview.png` | `02-single-date-picker.png` | `03-date-range-picker.png` | `04-time-picker-start.png` | `05-time-picker-end.png` |
+| <img src="https://raw.githubusercontent.com/kashumaku/react-native-ethiopian-date-picker/master/assets/screenshots/01-demo-overview.png" width="160" alt="01-demo-overview" /> | <img src="https://raw.githubusercontent.com/kashumaku/react-native-ethiopian-date-picker/master/assets/screenshots/02-single-date-picker.png" width="160" alt="02-single-date-picker" /> | <img src="https://raw.githubusercontent.com/kashumaku/react-native-ethiopian-date-picker/master/assets/screenshots/03-date-range-picker.png" width="160" alt="03-date-range-picker" /> | <img src="https://raw.githubusercontent.com/kashumaku/react-native-ethiopian-date-picker/master/assets/screenshots/04-time-picker-start.png" width="160" alt="04-time-picker-start" /> | <img src="https://raw.githubusercontent.com/kashumaku/react-native-ethiopian-date-picker/master/assets/screenshots/05-time-picker-end.png" width="160" alt="05-time-picker-end" /> |
+
+---
+
 ## Features
 
 - 📅 **Accurate Ethiopian Calendar Math** — Full support for all 13 months (Meskerem through Pagumen), precise leap year handling (Pagumen 5/6 days), and Julian Day Number (JDN) conversions.
