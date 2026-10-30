@@ -35,11 +35,12 @@ export const EthiopianDatePicker = forwardRef<
   } = props;
 
   const resolvedTheme = resolveTheme(customTheme);
-  const dict = getLocalization(locale);
 
   const {
     selectedDate,
     selectedRange,
+    calendarSystem,
+    changeCalendarSystem,
     displayedYear,
     displayedMonth,
     isMonthYearSelectorOpen,
@@ -58,6 +59,9 @@ export const EthiopianDatePicker = forwardRef<
     setRange,
     toggleMonthYearSelector,
   } = useEthiopianDatePicker(props);
+  // Gregorian mode uses English calendar labels even when the Ethiopian locale is Amharic.
+  const displayLocale = calendarSystem === "gregorian" ? "en" : locale;
+  const dict = getLocalization(displayLocale);
 
   useImperativeHandle(ref, () => ({
     open: openModal,
@@ -85,7 +89,9 @@ export const EthiopianDatePicker = forwardRef<
       <CalendarHeader
         year={displayedYear}
         month={displayedMonth}
-        locale={locale}
+        calendarSystem={calendarSystem}
+        onCalendarSystemChange={changeCalendarSystem}
+        locale={displayLocale}
         theme={resolvedTheme}
         onPreviousMonth={goToPreviousMonth}
         onNextMonth={goToNextMonth}
@@ -99,8 +105,9 @@ export const EthiopianDatePicker = forwardRef<
         <MonthYearSelector
           currentYear={displayedYear}
           currentMonth={displayedMonth}
+          calendarSystem={calendarSystem}
           onSelect={setMonthAndYear}
-          locale={locale}
+          locale={displayLocale}
           theme={resolvedTheme}
           minYear={minYear}
           maxYear={maxYear}
@@ -108,23 +115,24 @@ export const EthiopianDatePicker = forwardRef<
         />
       ) : (
         <>
-          <WeekdayHeader locale={locale} theme={resolvedTheme} />
+          <WeekdayHeader locale={displayLocale} theme={resolvedTheme} />
           <CalendarGrid
             year={displayedYear}
             month={displayedMonth}
+            calendarSystem={calendarSystem}
             selectionType={selectionType}
             selectedDate={selectedDate}
             selectedRange={selectedRange}
             onSelectDay={selectDay}
             isDayDisabled={isDayDisabled}
-            locale={locale}
+            locale={displayLocale}
             theme={resolvedTheme}
             testID={testID}
           />
         </>
       )}
 
-      {showTodayButton && (
+      {showTodayButton && mode === "inline" && (
         <View
           style={[
             styles.footer,
@@ -139,7 +147,6 @@ export const EthiopianDatePicker = forwardRef<
             onPress={goToToday}
             style={[
               styles.todayButton,
-              { backgroundColor: resolvedTheme.surfaceColor },
             ]}
           >
             <Text
@@ -165,9 +172,13 @@ export const EthiopianDatePicker = forwardRef<
         onClose={cancelDraft}
         onConfirm={confirmDraft}
         title={title}
-        confirmText={confirmText}
-        cancelText={cancelText}
-        locale={locale}
+        confirmText={calendarSystem === "gregorian" ? undefined : confirmText}
+        cancelText={calendarSystem === "gregorian" ? undefined : cancelText}
+        showTodayButton={showTodayButton}
+        todayButtonText={todayButtonText}
+        onToday={goToToday}
+        disabled={disabled}
+        locale={displayLocale}
         theme={resolvedTheme}
         testID={testID}
       >

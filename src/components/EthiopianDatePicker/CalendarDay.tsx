@@ -1,8 +1,9 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { getEthiopianMonthName } from "../../calendar/months";
+import { getLocalization } from "../../localization";
 import { styles, type ResolvedTheme } from "./styles";
-import type { EthiopianLocale } from "../../types";
+import type { CalendarType, EthiopianLocale } from "../../types";
 
 export type DayRangePosition = "start" | "end" | "in-range" | "single" | "none";
 
@@ -10,6 +11,7 @@ export interface CalendarDayProps {
   dayNumber: number | null;
   year: number;
   month: number;
+  calendarSystem?: CalendarType;
   isSelected: boolean;
   isToday: boolean;
   isDisabled: boolean;
@@ -25,6 +27,7 @@ export const CalendarDay: React.FC<CalendarDayProps> = React.memo(
     dayNumber,
     year,
     month,
+    calendarSystem = "ethiopian",
     isSelected,
     isToday,
     isDisabled,
@@ -38,7 +41,9 @@ export const CalendarDay: React.FC<CalendarDayProps> = React.memo(
       return <View style={styles.dayCellWrapper} />;
     }
 
-    const monthName = getEthiopianMonthName(month, locale);
+    const monthName = calendarSystem === "ethiopian"
+      ? getEthiopianMonthName(month, locale)
+      : getLocalization(locale).gregorianMonths[month - 1] ?? "";
     const accessibilityLabel = `${dayNumber} ${monthName} ${year}${isToday ? ", Today" : ""}`;
 
     const isRangeStart = rangePosition === "start";

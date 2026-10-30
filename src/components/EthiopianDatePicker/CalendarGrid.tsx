@@ -1,20 +1,20 @@
 import React, { useMemo } from "react";
 import { View } from "react-native";
 import { getEthiopianMonthGrid } from "../../calendar/calendarGrid";
-import { toEthiopian } from "../../conversion/gregorianToEthiopian";
+import { createGregorianDate, getGregorianMonthGrid } from "../../calendar/gregorian";
 import { toGregorian } from "../../conversion/ethiopianToGregorian";
 import {
-  isSameEthiopianDay,
   isSameGregorianDay,
   isBetweenGregorianDays,
 } from "../../conversion/comparison";
 import { CalendarDay, type DayRangePosition } from "./CalendarDay";
 import { styles, type ResolvedTheme } from "./styles";
-import type { EthiopianLocale, EthiopianDate, EthiopianDateRange } from "../../types";
+import type { CalendarType, EthiopianLocale, EthiopianDateRange } from "../../types";
 
 export interface CalendarGridProps {
   year: number;
   month: number;
+  calendarSystem?: CalendarType;
   selectionType?: "single" | "range";
   selectedDate: Date | null;
   selectedRange?: EthiopianDateRange | null;
@@ -29,6 +29,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
   ({
     year,
     month,
+    calendarSystem = "ethiopian",
     selectionType = "single",
     selectedDate,
     selectedRange,
@@ -38,7 +39,10 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
     theme,
     testID,
   }) => {
-    const gridDays = useMemo(() => getEthiopianMonthGrid(year, month), [year, month]);
+    const gridDays = useMemo(
+      () => calendarSystem === "ethiopian" ? getEthiopianMonthGrid(year, month) : getGregorianMonthGrid(year, month),
+      [calendarSystem, year, month],
+    );
 
     const weeks = useMemo(() => {
       const rows: Array<Array<number | null>> = [];
@@ -52,14 +56,11 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
       return rows;
     }, [gridDays]);
 
-    const selectedEthDate = useMemo<EthiopianDate | null>(() => {
-      if (!selectedDate || isNaN(selectedDate.getTime())) return null;
-      return toEthiopian(selectedDate);
-    }, [selectedDate]);
-
-    const todayEthDate = useMemo<EthiopianDate>(() => {
-      return toEthiopian(new Date());
-    }, []);
+    const validSelectedDate = useMemo(
+      () => selectedDate && !isNaN(selectedDate.getTime()) ? selectedDate : null,
+      [selectedDate],
+    );
+    const today = useMemo(() => new Date(), []);
 
     const startDate = selectedRange?.startDate;
     const endDate = selectedRange?.endDate;
@@ -87,15 +88,17 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                 );
               }
 
-              const currentDayObj: EthiopianDate = { year, month, day: dayNumber };
-              const isTodayCell = isSameEthiopianDay(todayEthDate, currentDayObj);
+              const cellDate = calendarSystem === "ethiopian"
+                ? toGregorian({ year, month, day: dayNumber })
+                : createGregorianDate(year, month, dayNumber);
+              const isTodayCell = isSameGregorianDay(today, cellDate);
               const isDisabled = isDayDisabled(year, month, dayNumber);
 
               let isSelected = false;
               let rangePosition: DayRangePosition = "none";
 
               if (selectionType === "range") {
-                const currentGreg = toGregorian(currentDayObj);
+                const currentGreg = cellDate;
 
                 if (startDate && !endDate) {
                   if (isSameGregorianDay(currentGreg, startDate)) {
@@ -119,7 +122,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                   }
                 }
               } else {
-                isSelected = isSameEthiopianDay(selectedEthDate, currentDayObj);
+                isSelected = validSelectedDate ? isSameGregorianDay(validSelectedDate, cellDate) : false;
               }
 
               return (
@@ -128,6 +131,7 @@ export const CalendarGrid: React.FC<CalendarGridProps> = React.memo(
                   dayNumber={dayNumber}
                   year={year}
                   month={month}
+                  calendarSystem={calendarSystem}
                   isSelected={isSelected}
                   isToday={isTodayCell}
                   isDisabled={isDisabled}

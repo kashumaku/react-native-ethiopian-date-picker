@@ -19,6 +19,8 @@ export interface LocalizationStrings {
   shortMonths: string[];
   weekdays: string[];
   shortWeekdays: string[];
+  gregorianMonths: string[];
+  gregorianShortMonths: string[];
 }
 
 export const en: LocalizationStrings = {
@@ -76,4 +78,6 @@ export const en: LocalizationStrings = {
     "Saturday",
   ],
   shortWeekdays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  gregorianMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  gregorianShortMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
 };

@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Pressable } from "react-native";
 import { getAllEthiopianMonths } from "../../calendar/months";
+import type { CalendarType } from "../../types";
 import { getLocalization } from "../../localization";
 import { styles, type ResolvedTheme } from "./styles";
 import type { EthiopianLocale } from "../../types";
@@ -8,6 +9,7 @@ import type { EthiopianLocale } from "../../types";
 export interface MonthYearSelectorProps {
   currentYear: number;
   currentMonth: number;
+  calendarSystem?: CalendarType;
   onSelect: (year: number, month: number) => void;
   locale: EthiopianLocale;
   theme: ResolvedTheme;
@@ -19,6 +21,7 @@ export interface MonthYearSelectorProps {
 export const MonthYearSelector: React.FC<MonthYearSelectorProps> = ({
   currentYear,
   currentMonth,
+  calendarSystem = "ethiopian",
   onSelect,
   locale,
   theme,
@@ -27,8 +30,17 @@ export const MonthYearSelector: React.FC<MonthYearSelectorProps> = ({
   testID,
 }) => {
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
+  useEffect(() => setSelectedYear(currentYear), [currentYear]);
   const dict = getLocalization(locale);
-  const months = getAllEthiopianMonths();
+  const months = calendarSystem === "ethiopian"
+    ? getAllEthiopianMonths().map((m) => ({ number: m.number, name: m.name, shortName: m.shortName, nameAm: m.nameAm, shortNameAm: m.shortNameAm }))
+    : dict.gregorianMonths.map((name, index) => ({
+        number: index + 1,
+        name,
+        shortName: dict.gregorianShortMonths[index] ?? name,
+        nameAm: name,
+        shortNameAm: dict.gregorianShortMonths[index] ?? name,
+      }));
 
   const handlePrevYear = () => {
     if (selectedYear > minYear) {

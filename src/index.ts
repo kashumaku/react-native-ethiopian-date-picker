@@ -77,6 +77,8 @@ export type {
   EthiopianMonth,
   EthiopianWeekday,
   EthiopianLocale,
+  CalendarSystem,
+  CalendarSystemCode,
   EthiopianDatePickerProps,
   EthiopianDatePickerTheme,
   EthiopianDatePickerRef,

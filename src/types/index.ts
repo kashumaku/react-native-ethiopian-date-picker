@@ -44,6 +44,15 @@ export type EthiopianWeekday = {
  */
 export type EthiopianLocale = "en" | "am";
 
+/** Calendar identifiers accepted by the date picker. EC is the default. */
+export type CalendarSystem = "EC" | "GC" | "ethiopian" | "gregorian";
+
+/** Short calendar codes emitted by onCalendarSystemChange. */
+export type CalendarSystemCode = "EC" | "GC";
+
+/** Normalized calendar identifiers used by picker internals. */
+export type CalendarType = "ethiopian" | "gregorian";
+
 /**
  * Custom color and styling theme for the EthiopianDatePicker component.
  */
@@ -103,7 +112,7 @@ export type EthiopianDatePickerProps = {
 
   /**
    * Callback fired when a date is selected and confirmed in single mode.
-   * Returns a standard JavaScript Date representing local midnight of the selected Ethiopian calendar day.
+   * Returns a standard JavaScript Date representing local midnight of the selected day, in either calendar mode.
    */
   onChange?: (date: Date) => void;
 
@@ -126,6 +135,12 @@ export type EthiopianDatePickerProps = {
    * Display locale ("en" or "am"). Default is "en".
    */
   locale?: EthiopianLocale;
+
+  /** Calendar displayed by the picker. Accepts EC/GC or ethiopian/gregorian; defaults to EC. */
+  calendarSystem?: CalendarSystem;
+
+  /** Called with EC or GC when the user changes the displayed calendar from the header tabs. */
+  onCalendarSystemChange?: (calendar: CalendarSystemCode) => void;
 
   /**
    * Presentation mode: "inline" displays embedded calendar; "modal" displays in a popup dialog; "sheet" displays in a bottom sheet.

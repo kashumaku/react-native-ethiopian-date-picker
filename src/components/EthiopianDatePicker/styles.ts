@@ -63,6 +63,26 @@ export const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 16,
   },
+  calendarTabs: {
+    flexDirection: "row",
+    width: "100%",
+    padding: 3,
+    borderRadius: 10,
+    marginTop: -6,
+    marginBottom: 14,
+  },
+  calendarTab: {
+    flex: 1,
+    minHeight: 36,
+    paddingHorizontal: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 8,
+  },
+  calendarTabText: {
+    fontSize: 13,
+    fontWeight: "600",
+  },
   headerTitleContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -84,6 +104,10 @@ export const styles = StyleSheet.create({
   navArrow: {
     fontSize: 22,
     fontWeight: "600",
+    lineHeight: 26,
+    textAlign: "center",
+    textAlignVertical: "center",
+    includeFontPadding: false,
   },
   weekdayContainer: {
     flexDirection: "row",

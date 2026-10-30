@@ -2,9 +2,12 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "ignoreDeprecations": "5.0",
-    "lib": ["ES2020", "DOM"],
+    "lib": [
+      "ES2020",
+      "DOM"
+    ],
     "jsx": "react-native",
     "strict": true,
     "noImplicitAny": true,
@@ -17,7 +20,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "types": ["jest"]
+    "types": [
+      "jest"
+    ]
   },
   "include": [
     "src/**/*",
@@ -28,5 +33,6 @@
   "exclude": [
     "node_modules",
     "dist"
-  ]
+  ],
+  "extends": "expo/tsconfig.base"
 }

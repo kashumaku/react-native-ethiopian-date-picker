@@ -13,6 +13,10 @@ export interface DatePickerModalProps {
   title?: string;
   confirmText?: string;
   cancelText?: string;
+  showTodayButton?: boolean;
+  todayButtonText?: string;
+  onToday?: () => void;
+  disabled?: boolean;
   locale: EthiopianLocale;
   theme: ResolvedTheme;
   children: React.ReactNode;
@@ -22,12 +26,15 @@ export interface DatePickerModalProps {
 export const DatePickerModal: React.FC<DatePickerModalProps> = ({
   visible,
   presentationMode = "modal",
-  selectionType = "single",
   onClose,
   onConfirm,
   title,
   confirmText,
   cancelText,
+  showTodayButton = false,
+  todayButtonText,
+  onToday,
+  disabled = false,
   locale,
   theme,
   children,
@@ -35,10 +42,9 @@ export const DatePickerModal: React.FC<DatePickerModalProps> = ({
 }) => {
   const isSheet = presentationMode === "sheet";
   const dict = getLocalization(locale);
-  const defaultTitle = selectionType === "range" ? dict.selectRange : dict.selectDate;
-  const displayTitle = title ?? defaultTitle;
   const displayConfirm = confirmText ?? dict.confirm;
   const displayCancel = cancelText ?? dict.cancel;
+  const displayToday = todayButtonText ?? dict.today;
 
   return (
     <Modal
@@ -69,11 +75,13 @@ export const DatePickerModal: React.FC<DatePickerModalProps> = ({
             />
           )}
 
-          <View style={styles.modalHeader}>
-            <Text style={[styles.modalTitle, { color: theme.headerTextColor }]}>
-              {displayTitle}
-            </Text>
-          </View>
+          {title !== undefined && title !== "" && (
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: theme.headerTextColor }]}>
+                {title}
+              </Text>
+            </View>
+          )}
 
           {children}
 
@@ -83,6 +91,20 @@ export const DatePickerModal: React.FC<DatePickerModalProps> = ({
               { borderTopColor: theme.borderColor },
             ]}
           >
+            {showTodayButton && (
+              <Pressable
+                testID={testID ? `${testID}-today-btn` : undefined}
+                accessibilityRole="button"
+                accessibilityLabel={displayToday}
+                disabled={disabled}
+                onPress={onToday}
+                style={[styles.todayButton, { marginRight: "auto" }]}
+              >
+                <Text style={[styles.todayButtonText, { color: theme.todayButtonTextColor }]}>
+                  {displayToday}
+                </Text>
+              </Pressable>
+            )}
             <Pressable
               testID={testID ? `${testID}-cancel-btn` : undefined}
               accessibilityRole="button"

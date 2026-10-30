@@ -249,10 +249,10 @@ export default function App() {
             locale={locale}
             theme={themeConfig}
             showTodayButton
-            title={
-              activePicker === "grad"
-                ? isAm ? "የምረቃ ቀን ይምረጡ" : "Select Date of Graduation"
-                : isAm ? "የስራ ልምድ ክልል ይምረጡ" : "Select Experience Range"
+            title={""
+              // activePicker === "grad"
+              //   ? isAm ? "የምረቃ ቀን ይምረጡ" : "Select Date of Graduation"
+              //   : isAm ? "የስራ ልምድ ክልል ይምረጡ" : "Select Experience Range"
             }
             confirmText={isAm ? "አረጋግጥ" : "Confirm"}
             cancelText={isAm ? "ይቅር" : "Cancel"}

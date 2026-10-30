@@ -22,6 +22,7 @@ A modern, production-ready, fully accessible Ethiopian calendar date picker for 
 ## Features
 
 - 📅 **Accurate Ethiopian Calendar Math** — Full support for all 13 months (Meskerem through Pagumen), precise leap year handling (Pagumen 5/6 days), and Julian Day Number (JDN) conversions.
+- 🔁 **Gregorian & Ethiopian Calendar Tabs** — Switch calendar systems in the picker header while keeping selection values as standard JavaScript `Date` objects.
 - 🔄 **Bidirectional Date Conversion** — Convert effortlessly between standard JavaScript `Date` (Gregorian) and Ethiopian date representations (`{ year, month, day }`).
 - ↔️ **Date Range Picker (`selectionType="range"`)** — Seamlessly select start and end date ranges with continuous ribbon highlighting.
 - 🌐 **Built-in English & Amharic (አማርኛ)** — Native Amharic script and English month/weekday names, labels, and formats.
@@ -190,6 +191,21 @@ Simply pass `locale="am"`:
   onChange={setSelectedDate}
   showTodayButton
   todayButtonText="ዛሬ"
+/>
+```
+
+### Gregorian and Ethiopian calendar tabs
+
+The picker starts in Ethiopian mode (`"EC"`) and includes full-width header tabs for switching between calendars. `calendarSystem` accepts `"EC"`/`"GC"` and the descriptive aliases `"ethiopian"`/`"gregorian"`. Gregorian mode uses English calendar labels and default modal actions (`Cancel` and `Confirm`) regardless of the `locale` setting. The selected value and callbacks remain JavaScript `Date` objects in either mode. To control the active tab, pass `calendarSystem` and update it in `onCalendarSystemChange`:
+
+```tsx
+const [calendarSystem, setCalendarSystem] = useState<"EC" | "GC">("EC");
+
+<EthiopianDatePicker
+  value={selectedDate}
+  onChange={setSelectedDate}
+  calendarSystem={calendarSystem}
+  onCalendarSystemChange={setCalendarSystem}
 />
 ```
 
@@ -460,6 +476,8 @@ export function TimePickerExample() {
 | `defaultSelectedRange` | `EthiopianDateRange \| null` | `{ startDate: null, endDate: null }` | Initial Gregorian date range for uncontrolled range mode. |
 | `onRangeChange` | `(range: EthiopianDateRange) => void` | `undefined` | Callback fired when a date range is selected/confirmed. |
 | `locale` | `"en" \| "am"` | `"en"` | Language locale for month names, weekdays, and buttons. |
+| `calendarSystem` | `"EC" \| "GC" \| "ethiopian" \| "gregorian"` | `"EC"` | Active calendar shown in the header and calendar grid. The header tabs can change it. |
+| `onCalendarSystemChange` | `(calendar: "EC" \| "GC") => void` | `undefined` | Called with `"EC"` or `"GC"` when the user selects a calendar tab. Use with `calendarSystem` for controlled state. |
 | `mode` | `"inline" \| "modal" \| "sheet"` | `"inline"` | Display mode: embedded in page, center modal dialog, or bottom sheet. |
 | `defaultVisible` | `boolean` | `false` | Initial visibility state for modal/sheet mode when uncontrolled. |
 | `visible` | `boolean` | `undefined` | Controls modal/sheet visibility when `mode="modal"` or `mode="sheet"`. |
@@ -470,7 +488,7 @@ export function TimePickerExample() {
 | `disabledDates` | `Date[] \| ((date: Date) => boolean)` | `undefined` | Specific dates or dynamic predicate to disable. |
 | `showTodayButton`| `boolean` | `false` | Whether to display the "Today" shortcut button. |
 | `todayButtonText`| `string` | `"Today"` / `"ዛሬ"` | Custom label for the today button. |
-| `title` | `string` | `"Select Date"` | Modal header title. |
+| `title` | `string` | `undefined` | Optional modal/sheet header title. The title row is omitted when not provided. |
 | `confirmText` | `string` | `"Confirm"` / `"አረጋግጥ"` | Modal confirm button label. |
 | `cancelText` | `string` | `"Cancel"` / `"ይቅር"` | Modal cancel button label. |
 | `theme` | `EthiopianDatePickerTheme` | `defaultTheme` | Color and styling theme overrides. |

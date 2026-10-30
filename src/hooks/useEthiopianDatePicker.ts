@@ -5,14 +5,19 @@ import {
   isSameGregorianDay,
   isBeforeGregorianDay,
   isAfterGregorianDay,
-  isToday,
 } from "../conversion/comparison";
 import { nextEthiopianMonth, previousEthiopianMonth } from "../calendar/month";
+import { createGregorianDate, nextGregorianMonth, previousGregorianMonth } from "../calendar/gregorian";
 import type {
   EthiopianDatePickerProps,
-  EthiopianDate,
   EthiopianDateRange,
+  CalendarSystem,
+  CalendarType,
 } from "../types";
+
+function normalizeCalendarSystem(system: CalendarSystem | undefined): CalendarType {
+  return system === "GC" || system === "gregorian" ? "gregorian" : "ethiopian";
+}
 
 export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
   const {
@@ -34,11 +39,21 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
     minYear = 1900,
     maxYear = 2100,
   } = props;
+  const [internalCalendarSystem, setInternalCalendarSystem] = useState<CalendarSystem>(
+    props.calendarSystem ?? "EC",
+  );
+  const calendarSystem: CalendarType = normalizeCalendarSystem(props.calendarSystem ?? internalCalendarSystem);
+  const dateToDisplay = useCallback((date: Date) => {
+    if (calendarSystem === "ethiopian") return toEthiopian(date);
+    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
+  }, [calendarSystem]);
 
   // Single date mode state
   const isControlled = value !== undefined;
   const initialDate = value ?? defaultValue ?? new Date();
-  const initialEth = useMemo(() => toEthiopian(initialDate), []);
+  const initialEth = useMemo(() => calendarSystem === "ethiopian"
+    ? toEthiopian(initialDate)
+    : { year: initialDate.getFullYear(), month: initialDate.getMonth() + 1, day: initialDate.getDate() }, []);
 
   const [uncontrolledDate, setUncontrolledDate] = useState<Date | null>(
     defaultValue ?? (value === undefined ? new Date() : null),
@@ -63,16 +78,32 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
         value ??
         defaultValue ??
         new Date();
-      return toEthiopian(base);
+      return calendarSystem === "ethiopian"
+        ? toEthiopian(base)
+        : { year: base.getFullYear(), month: base.getMonth() + 1, day: base.getDate() };
     }
     return initialEth;
   }, []);
 
   const [displayedYear, setDisplayedYear] = useState<number>(initialNavEth.year);
   const [displayedMonth, setDisplayedMonth] = useState<number>(initialNavEth.month);
-
   // Selector view (quick month/year picker)
   const [isMonthYearSelectorOpen, setIsMonthYearSelectorOpen] = useState(false);
+
+  const changeCalendarSystem = useCallback((system: CalendarType) => {
+    if (system === calendarSystem) return;
+    const anchorDate = calendarSystem === "ethiopian"
+      ? toGregorian({ year: displayedYear, month: displayedMonth, day: 1 })
+      : createGregorianDate(displayedYear, displayedMonth, 1);
+    const next = system === "ethiopian"
+      ? toEthiopian(anchorDate)
+      : { year: anchorDate.getFullYear(), month: anchorDate.getMonth() + 1 };
+    setDisplayedYear(next.year);
+    setDisplayedMonth(next.month);
+    setIsMonthYearSelectorOpen(false);
+    if (props.calendarSystem === undefined) setInternalCalendarSystem(system === "ethiopian" ? "EC" : "GC");
+    props.onCalendarSystemChange?.(system === "ethiopian" ? "EC" : "GC");
+  }, [calendarSystem, displayedYear, displayedMonth, props.calendarSystem, props.onCalendarSystemChange]);
 
   // Modal mode state
   const [uncontrolledModalVisible, setUncontrolledModalVisible] = useState(defaultVisible);
@@ -83,24 +114,24 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
   // Sync displayed month/year when controlled value changes externally
   useEffect(() => {
     if (selectionType === "single" && value && value instanceof Date && !isNaN(value.getTime())) {
-      const eth = toEthiopian(value);
+      const eth = dateToDisplay(value);
       setDisplayedYear(eth.year);
       setDisplayedMonth(eth.month);
       setDraftDate(value);
     }
-  }, [selectionType, value]);
+  }, [selectionType, value, dateToDisplay]);
 
   // Sync displayed month/year when controlled selectedRange changes externally
   useEffect(() => {
     if (selectionType === "range" && selectedRange) {
       setDraftRange(selectedRange);
       if (selectedRange.startDate && selectedRange.startDate instanceof Date && !isNaN(selectedRange.startDate.getTime())) {
-        const eth = toEthiopian(selectedRange.startDate);
+        const eth = dateToDisplay(selectedRange.startDate);
         setDisplayedYear(eth.year);
         setDisplayedMonth(eth.month);
       }
     }
-  }, [selectionType, selectedRange]);
+  }, [selectionType, selectedRange, dateToDisplay]);
 
   // Sync draft whenever modal opens
   useEffect(() => {
@@ -108,18 +139,18 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
       if (selectionType === "range") {
         setDraftRange(activeSelectedRange);
         const base = activeSelectedRange.startDate ?? new Date();
-        const eth = toEthiopian(base);
+        const eth = dateToDisplay(base);
         setDisplayedYear(eth.year);
         setDisplayedMonth(eth.month);
       } else {
         setDraftDate(activeSelectedDate ?? new Date());
         const base = activeSelectedDate ?? new Date();
-        const eth = toEthiopian(base);
+        const eth = dateToDisplay(base);
         setDisplayedYear(eth.year);
         setDisplayedMonth(eth.month);
       }
     }
-  }, [isModalVisible, selectionType]);
+  }, [isModalVisible, selectionType, dateToDisplay]);
 
   const isDateDisabled = useCallback(
     (gregDate: Date): boolean => {
@@ -148,23 +179,29 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
 
   const isDayDisabled = useCallback(
     (year: number, month: number, day: number): boolean => {
-      const gregDate = toGregorian({ year, month, day });
+      const gregDate = calendarSystem === "ethiopian"
+        ? toGregorian({ year, month, day })
+        : createGregorianDate(year, month, day);
       return isDateDisabled(gregDate);
     },
-    [isDateDisabled],
+    [isDateDisabled, calendarSystem],
   );
 
   const goToNextMonth = useCallback(() => {
-    const next = nextEthiopianMonth(displayedYear, displayedMonth);
+    const next = calendarSystem === "ethiopian"
+      ? nextEthiopianMonth(displayedYear, displayedMonth)
+      : nextGregorianMonth(displayedYear, displayedMonth);
     setDisplayedYear(next.year);
     setDisplayedMonth(next.month);
-  }, [displayedYear, displayedMonth]);
+  }, [displayedYear, displayedMonth, calendarSystem]);
 
   const goToPreviousMonth = useCallback(() => {
-    const prev = previousEthiopianMonth(displayedYear, displayedMonth);
+    const prev = calendarSystem === "ethiopian"
+      ? previousEthiopianMonth(displayedYear, displayedMonth)
+      : previousGregorianMonth(displayedYear, displayedMonth);
     setDisplayedYear(prev.year);
     setDisplayedMonth(prev.month);
-  }, [displayedYear, displayedMonth]);
+  }, [displayedYear, displayedMonth, calendarSystem]);
 
   const goToNextYear = useCallback(() => {
     if (displayedYear < maxYear) {
@@ -188,11 +225,9 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
 
   const selectDay = useCallback(
     (day: number) => {
-      const selectedGreg = toGregorian({
-        year: displayedYear,
-        month: displayedMonth,
-        day,
-      });
+      const selectedGreg = calendarSystem === "ethiopian"
+        ? toGregorian({ year: displayedYear, month: displayedMonth, day })
+        : createGregorianDate(displayedYear, displayedMonth, day);
 
       if (isDateDisabled(selectedGreg)) {
         return;
@@ -232,6 +267,7 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
     [
       displayedYear,
       displayedMonth,
+      calendarSystem,
       isDateDisabled,
       selectionType,
       isOverlayMode,
@@ -246,7 +282,7 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
 
   const goToToday = useCallback(() => {
     const now = new Date();
-    const todayEth = toEthiopian(now);
+    const todayEth = dateToDisplay(now);
     setDisplayedYear(todayEth.year);
     setDisplayedMonth(todayEth.month);
     setIsMonthYearSelectorOpen(false);
@@ -273,11 +309,11 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
         }
       }
     }
-  }, [isDateDisabled, selectionType, isOverlayMode, isRangeControlled, onRangeChange, isControlled, onChange]);
+  }, [isDateDisabled, selectionType, isOverlayMode, isRangeControlled, onRangeChange, isControlled, onChange, dateToDisplay]);
 
   const goToDate = useCallback(
     (date: Date) => {
-      const eth = toEthiopian(date);
+      const eth = dateToDisplay(date);
       setDisplayedYear(eth.year);
       setDisplayedMonth(eth.month);
       setIsMonthYearSelectorOpen(false);
@@ -305,7 +341,7 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
         }
       }
     },
-    [isDateDisabled, selectionType, isOverlayMode, isRangeControlled, onRangeChange, isControlled, onChange],
+    [isDateDisabled, selectionType, isOverlayMode, isRangeControlled, onRangeChange, isControlled, onChange, dateToDisplay],
   );
 
   const openModal = useCallback(() => {
@@ -371,6 +407,8 @@ export function useEthiopianDatePicker(props: EthiopianDatePickerProps) {
 
   return {
     selectionType,
+    calendarSystem,
+    changeCalendarSystem,
     selectedDate: currentEffectiveDate,
     selectedRange: currentEffectiveRange,
     displayedYear,
