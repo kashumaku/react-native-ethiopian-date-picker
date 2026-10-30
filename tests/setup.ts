@@ -35,6 +35,7 @@ jest.mock("react-native", () => {
 
   const ScrollView = (props: any) => React.createElement("ScrollView", props, props.children);
   const TextInput = (props: any) => React.createElement("TextInput", props, props.children);
+  const useWindowDimensions = () => ({ width: 390, height: 844, scale: 1, fontScale: 1 });
 
   return {
     View,
@@ -43,6 +44,7 @@ jest.mock("react-native", () => {
     Modal,
     ScrollView,
     TextInput,
+    useWindowDimensions,
     StyleSheet,
   };
 });

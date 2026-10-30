@@ -27,6 +27,25 @@ describe("EthiopianTimePicker Component", () => {
     expect(minutesSegment.props.children.props.children).toBe("30");
   });
 
+  it("should render the dual-ring clock with five-minute outer choices and both hands", () => {
+    let tree: any;
+    act(() => {
+      tree = ReactTestRenderer.create(
+        <EthiopianTimePicker
+          value={{ hours: 14, minutes: 30 }}
+          testID="eth-time"
+        />
+      );
+    });
+
+    const root = tree.root;
+    expect(root.findByProps({ testID: "eth-time-hour-2" }).props.accessibilityLabel).toBe("02 hours");
+    expect(root.findByProps({ testID: "eth-time-minute-30" }).props.accessibilityLabel).toBe("30 minutes");
+    expect(root.findByProps({ testID: "eth-time-hour-hand" })).toBeTruthy();
+    expect(root.findByProps({ testID: "eth-time-minute-hand" })).toBeTruthy();
+    expect(() => root.findByProps({ testID: "eth-time-minute-31" })).toThrow();
+  });
+
   it("should render 24-hour time correctly when is24Hour is true", () => {
     let tree: any;
     act(() => {
@@ -66,7 +85,7 @@ describe("EthiopianTimePicker Component", () => {
     expect(morningPeriod).toBeTruthy();
   });
 
-  it("should select hours and minutes in sliding columns", () => {
+  it("should select hours and five-minute values on the dual-ring clock", () => {
     const handleChange = jest.fn();
     let tree: any;
     act(() => {
@@ -100,9 +119,18 @@ describe("EthiopianTimePicker Component", () => {
       { hours: 4, minutes: 30 },
       expect.any(Date)
     );
+
+    const opt35 = root.findByProps({ testID: "eth-time-minute-35" });
+    act(() => {
+      opt35.props.onPress();
+    });
+    expect(handleChange).toHaveBeenLastCalledWith(
+      { hours: 4, minutes: 35 },
+      expect.any(Date)
+    );
   });
 
-  it("should switch AM/PM periods in 12-hour sliding mode", () => {
+  it("should show AM/PM in a vertical selector and switch periods", () => {
     const handleChange = jest.fn();
     let tree: any;
     act(() => {
@@ -117,6 +145,7 @@ describe("EthiopianTimePicker Component", () => {
 
     const root = tree.root;
     const pmBtn = root.findByProps({ testID: "eth-time-period-PM" });
+    expect(pmBtn.parent.props.style.flexDirection).toBe("column");
 
     act(() => {
       pmBtn.props.onPress();

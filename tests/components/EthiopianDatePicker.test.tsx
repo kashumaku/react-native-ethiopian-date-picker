@@ -25,6 +25,32 @@ describe("EthiopianDatePicker Component", () => {
     expect(day15.props.accessibilityState?.selected).toBe(true);
   });
 
+  it("should expose Gregorian and Ethiopian calendar tabs and report changes", () => {
+    const handleCalendarChange = jest.fn();
+    let tree: any;
+    act(() => {
+      tree = ReactTestRenderer.create(
+        <EthiopianDatePicker
+          value={sampleDate}
+          calendarSystem="EC"
+          onCalendarSystemChange={handleCalendarChange}
+          testID="eth-picker"
+        />,
+      );
+    });
+
+    const root = tree.root;
+    const gregorianTab = root.findByProps({ testID: "eth-picker-calendar-gregorian" });
+    const ethiopianTab = root.findByProps({ testID: "eth-picker-calendar-ethiopian" });
+    expect(ethiopianTab.props.accessibilityState?.selected).toBe(true);
+    expect(gregorianTab.props.accessibilityState?.selected).toBe(false);
+
+    act(() => {
+      gregorianTab.props.onPress();
+    });
+    expect(handleCalendarChange).toHaveBeenCalledWith("GC");
+  });
+
   it("should support uncontrolled mode with defaultValue", () => {
     const handleChange = jest.fn();
     let tree: any;
