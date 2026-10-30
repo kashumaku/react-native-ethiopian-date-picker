@@ -41,6 +41,7 @@ const darkTheme = {
 export default function App() {
   const [mode, setMode] = useState<Mode>("modal");
   const [locale, setLocale] = useState<EthiopianLocale>("am");
+  const [calendarSystem, setCalendarSystem] = useState<"EC" | "GC">("EC");
   const [isDark, setIsDark] = useState(false);
   const [activePicker, setActivePicker] = useState<PickerType>(null);
 
@@ -62,6 +63,17 @@ export default function App() {
   const textColor = isDark ? "#FAFAFA" : "#09090B";
   const mutedColor = isDark ? "#A1A1AA" : "#71717A";
   const borderLineColor = isDark ? "#27272A" : "#E4E4E7";
+  const renderCalendarToggle = () => (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={calendarSystem === "GC" ? "Gregorian calendar" : "Ethiopian calendar"}
+      accessibilityHint="Switch calendar system"
+      onPress={() => setCalendarSystem(calendarSystem === "GC" ? "EC" : "GC")}
+      style={styles.calendarToggleButton}
+    >
+      <Text style={[styles.actionBtnText, { color: "#01848a" }]}>{calendarSystem}</Text>
+    </Pressable>
+  );
 
   return (
     <View style={[styles.container, { paddingTop: 35, backgroundColor: bgColor }]}>
@@ -100,37 +112,29 @@ export default function App() {
         {/* Date picker */}
         <View style={styles.fieldGroup}>
           <Text style={[styles.label, { color: mutedColor }]}>Pick Date</Text>
-          <Pressable
-            style={[
-              styles.underlineInput,
-              { borderBottomColor: borderLineColor },
-              activePicker === "grad" && styles.underlineInputActive,
-            ]}
-            onPress={() => setActivePicker("grad")}
-          >
-            <Text style={[styles.inputText, { color: textColor }, !gradDate && styles.placeholderText]}>
-              {gradText || "Pick Date"}
-            </Text>
-            <Text style={styles.fieldIcon}>🎓</Text>
-          </Pressable>
+          <View style={[styles.underlineInput, { borderBottomColor: borderLineColor }, activePicker === "grad" && styles.underlineInputActive]}>
+            <Text style={styles.leadingFieldIcon}>🎓</Text>
+            <Pressable style={styles.inputValue} onPress={() => setActivePicker("grad")}>
+              <Text style={[styles.inputText, { color: textColor }, !gradDate && styles.placeholderText]}>
+                {gradText || "Pick Date"}
+              </Text>
+            </Pressable>
+            {renderCalendarToggle()}
+          </View>
         </View>
 
         {/* Date range picker */}
         <View style={styles.fieldGroup}>
           <Text style={[styles.label, { color: mutedColor }]}>Pick Date Range</Text>
-          <Pressable
-            style={[
-              styles.underlineInput,
-              { borderBottomColor: borderLineColor },
-              activePicker === "exp" && styles.underlineInputActive,
-            ]}
-            onPress={() => setActivePicker("exp")}
-          >
-            <Text style={[styles.inputText, { color: textColor }, !expRange.startDate && styles.placeholderText]}>
-              {expText || "Pick Date Range"}
-            </Text>
-            <Text style={styles.fieldIcon}>💼</Text>
-          </Pressable>
+          <View style={[styles.underlineInput, { borderBottomColor: borderLineColor }, activePicker === "exp" && styles.underlineInputActive]}>
+            <Text style={styles.leadingFieldIcon}>💼</Text>
+            <Pressable style={styles.inputValue} onPress={() => setActivePicker("exp")}>
+              <Text style={[styles.inputText, { color: textColor }, !expRange.startDate && styles.placeholderText]}>
+                {expText || "Pick Date Range"}
+              </Text>
+            </Pressable>
+            {renderCalendarToggle()}
+          </View>
         </View>
 
         {/* Time picker */}
@@ -172,6 +176,8 @@ export default function App() {
                 value={gradDate}
                 selectedRange={expRange}
                 locale={locale}
+                calendarSystem={calendarSystem}
+                onCalendarSystemChange={setCalendarSystem}
                 theme={themeConfig}
                 showTodayButton
                 onChange={(d) => setGradDate(d)}
@@ -190,6 +196,8 @@ export default function App() {
             value={gradDate}
             selectedRange={expRange}
             locale={locale}
+            calendarSystem={calendarSystem}
+            onCalendarSystemChange={setCalendarSystem}
             theme={themeConfig}
             showTodayButton
             confirmText={isAm ? "አረጋግጥ" : "Confirm"}
@@ -265,6 +273,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
   },
+  calendarToggleButton: {
+    minWidth: 34,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 4,
+    paddingHorizontal: 5,
+  },
   actionBtn: {
     paddingVertical: 6,
     paddingHorizontal: 10,
@@ -299,12 +314,18 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#09090B",
   },
+  inputValue: {
+    flex: 1,
+    justifyContent: "center",
+    paddingHorizontal: 8,
+  },
   underlineInputActive: {
     borderBottomColor: "#01848a",
   },
   inputText: { fontSize: 16, fontWeight: "600", color: "#09090B", flex: 1 },
   placeholderText: { color: "#A1A1AA", fontWeight: "400" },
   fieldIcon: { fontSize: 18, marginLeft: 8 },
+  leadingFieldIcon: { fontSize: 18, marginRight: 8 },
   inlineBox: { marginTop: 12, alignItems: "center" },
   inlineTitle: { fontSize: 14, fontWeight: "700", color: "#09090B", marginBottom: 12 },
 });
