@@ -59,6 +59,7 @@
   },
   "scripts": {
     "build": "tsup",
+    "pack:local": "npm run build && npm pack",
     "registry:login": "npm login --registry=https://registry.npmjs.org/",
     "prepublishOnly": "npm run build",
     "deploy": "npm publish --registry=https://registry.npmjs.org/",
