@@ -116,7 +116,7 @@ export default function App() {
             <Text style={styles.leadingFieldIcon}>🎓</Text>
             <Pressable style={styles.inputValue} onPress={() => setActivePicker("grad")}>
               <Text style={[styles.inputText, { color: textColor }, !gradDate && styles.placeholderText]}>
-                {gradText || "Pick Date"}
+                  {gradText || "DD/MM/YYYY"}
               </Text>
             </Pressable>
             {renderCalendarToggle()}
@@ -130,7 +130,7 @@ export default function App() {
             <Text style={styles.leadingFieldIcon}>💼</Text>
             <Pressable style={styles.inputValue} onPress={() => setActivePicker("exp")}>
               <Text style={[styles.inputText, { color: textColor }, !expRange.startDate && styles.placeholderText]}>
-                {expText || "Pick Date Range"}
+                  {expText || "DD/MM/YYYY - DD/MM/YYYY"}
               </Text>
             </Pressable>
             {renderCalendarToggle()}
@@ -148,10 +148,10 @@ export default function App() {
             ]}
             onPress={() => setActivePicker("startTime")}
           >
+            <Text style={styles.leadingFieldIcon}>⏰</Text>
             <Text style={[styles.inputText, { color: textColor }, !startTime && styles.placeholderText]}>
-              {startTimeText || "Pick Time"}
+              {startTimeText || "HH:MM AM"}
             </Text>
-            <Text style={styles.fieldIcon}>⏰</Text>
           </Pressable>
         </View>
 
