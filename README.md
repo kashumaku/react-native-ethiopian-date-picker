@@ -12,9 +12,20 @@ A modern, production-ready, fully accessible Ethiopian calendar date picker for 
 
 ## Demo
 
-<video src="https://raw.githubusercontent.com/kashumaku/react-native-ethiopian-date-picker/master/assets/video/demo_video.mp4" controls width="640">
-  Your browser does not support embedded video. [Watch the demo video](https://raw.githubusercontent.com/kashumaku/react-native-ethiopian-date-picker/master/assets/video/demo_video.mp4).
-</video>
+[▶ Watch the demo video](https://raw.githubusercontent.com/kashumaku/react-native-ethiopian-date-picker/master/assets/video/demo_video.mp4)
+
+### Screenshots
+
+<p align="center">
+  <img src="assets/screenshots/Screenshot%20iPhone%2017%2030-10-2026%20at%208.36.27%E2%80%AFPM.png" alt="Demo screen with date, date range, and time fields" width="260" />
+  <img src="assets/screenshots/Screenshot%20iPhone%2017%2030-10-2026%20at%208.37.08%E2%80%AFPM.png" alt="Ethiopian date picker modal" width="260" />
+  <img src="assets/screenshots/Screenshot%20iPhone%2017%2030-10-2026%20at%208.37.34%E2%80%AFPM.png" alt="Ethiopian date picker with a selected date range" width="260" />
+</p>
+
+<p align="center">
+  <img src="assets/screenshots/Screenshot%20iPhone%2017%2030-10-2026%20at%208.37.55%E2%80%AFPM.png" alt="Dual-ring time picker modal" width="260" />
+  <img src="assets/screenshots/Screenshot%20iPhone%2017%2030-10-2026%20at%208.38.37%E2%80%AFPM.png" alt="Demo screen with selected Ethiopian dates and time" width="260" />
+</p>
 
 ---
 
