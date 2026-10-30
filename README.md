@@ -508,15 +508,16 @@ export function TimePickerExample() {
 | `defaultValue` | `Date \| EthiopianTime` | `Current Time` | Initial uncontrolled time value. |
 | `onChange` | `(time: EthiopianTime, date: Date) => void` | `undefined` | Callback fired when time is changed/confirmed. |
 | `mode` | `"inline" \| "modal" \| "sheet"` | `"inline"` | Display presentation: inline, modal dialog, or bottom sheet. |
+| `pickerStyle` | `"clock" \| "stepper"` | `"clock"` | Choose the dual-ring clock dial or a split digital stepper layout. In clock mode, the outer ring selects hours and the inner ring selects minutes. |
 | `is24Hour` | `boolean` | `false` | Enables 24-hour time format (00:00 to 23:59). |
 | `useEthiopianConvention` | `boolean` | `false` | Traditional 12-hour solar day cycle starting at sunrise (~6 AM). |
-| `minuteInterval` | `number` | `1` | Minute stepping interval (e.g., 1, 5, 10, 15). |
+| `minuteInterval` | `number` | `5` | Minute dial and stepper interval (1, 5, 10, 15, or 30 minutes). |
 | `locale` | `"en" \| "am"` | `"en"` | Language locale for time period labels (ጠዋት, ከሰዓት, ማታ, ሌሊት). |
 | `visible` | `boolean` | `undefined` | Controls modal/sheet visibility. |
 | `defaultVisible` | `boolean` | `false` | Initial visibility state when uncontrolled. |
 | `onOpen` | `() => void` | `undefined` | Fired when modal/sheet opens. |
 | `onClose` | `() => void` | `undefined` | Fired when modal/sheet closes. |
-| `title` | `string` | `"Select Time"` | Modal/sheet title. |
+| `title` | `string` | `undefined` | Optional modal/sheet title; the heading is omitted when not provided. |
 | `confirmText` | `string` | `"Confirm"` / `"አረጋግጥ"` | Modal/sheet confirm button text. |
 | `cancelText` | `string` | `"Cancel"` / `"ይቅር"` | Modal/sheet cancel button text. |
 | `theme` | `EthiopianDatePickerTheme` | `defaultTheme` | Color and styling theme overrides. |

@@ -282,6 +282,8 @@ export type EthiopianTimePickerProps = {
   onChange?: (time: EthiopianTime, date: Date) => void;
   locale?: EthiopianLocale;
   mode?: "inline" | "modal" | "sheet";
+  /** Visual time selection design. Defaults to the concentric clock dial. */
+  pickerStyle?: "clock" | "stepper";
   is24Hour?: boolean;
   useEthiopianConvention?: boolean;
   minuteInterval?: 1 | 5 | 10 | 15 | 30;

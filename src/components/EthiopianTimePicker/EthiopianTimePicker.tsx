@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle, useCallback } from "react";
-import { StyleSheet, View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
+import React, { useState, useEffect, forwardRef, useImperativeHandle, useCallback } from "react";
+import { StyleSheet, View, Text, Pressable, useWindowDimensions } from "react-native";
 import { resolveTheme } from "../EthiopianDatePicker/styles";
 import { DatePickerModal } from "../EthiopianDatePicker/DatePickerModal";
 import {
@@ -15,105 +15,207 @@ import type {
   EthiopianTimePickerRef,
 } from "../../types";
 
-const ITEM_HEIGHT = 44;
-const VISIBLE_ITEMS = 3;
-const WHEEL_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
-const PADDING_COUNT = Math.floor(VISIBLE_ITEMS / 2);
-
-interface SlidingColumnProps<T> {
-  items: T[];
-  selectedIndex: number;
-  onSelect: (item: T, index: number) => void;
-  formatLabel: (item: T) => string;
-  testIDPrefix: string;
+interface ClockDialProps {
+  size: number;
+  hour: number;
+  selectedMinute: number;
+  minuteInterval: number;
+  onSelectHour: (hour: number) => void;
+  onSelectMinute: (minute: number) => void;
   primaryColor: string;
   textColor: string;
   mutedTextColor: string;
-  disabled?: boolean;
+  selectedTextColor: string;
+  surfaceColor: string;
+  disabled: boolean;
+  testID: string;
 }
 
-function SlidingColumn<T>({
-  items,
-  selectedIndex,
-  onSelect,
-  formatLabel,
-  testIDPrefix,
+function RingProgress({
+  center,
+  radius,
+  thickness,
+  progress,
+  color,
+  trackColor,
+}: {
+  center: number;
+  radius: number;
+  thickness: number;
+  progress: number;
+  color: string;
+  trackColor: string;
+}) {
+  const segmentCount = 120;
+  const segmentLength = (2 * Math.PI * radius / segmentCount) + 1;
+
+  return (
+    <>
+      {Array.from({ length: segmentCount }, (_, index) => {
+        const angle = index * 360 / segmentCount;
+        const radians = angle * Math.PI / 180;
+        const isActive = index / segmentCount < progress;
+        return (
+          <View
+            key={index}
+            pointerEvents="none"
+            style={[
+              wheelStyles.ringSegment,
+              {
+                width: segmentLength,
+                height: thickness,
+                left: center + radius * Math.sin(radians) - segmentLength / 2,
+                top: center - radius * Math.cos(radians) - thickness / 2,
+                borderRadius: thickness / 2,
+                backgroundColor: isActive ? color : trackColor,
+                transform: [{ rotate: `${angle + 90}deg` }],
+              },
+            ]}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+function ClockDial({
+  size,
+  hour,
+  selectedMinute,
+  minuteInterval,
+  onSelectHour,
+  onSelectMinute,
   primaryColor,
   textColor,
   mutedTextColor,
+  selectedTextColor,
+  surfaceColor,
   disabled,
-}: SlidingColumnProps<T>) {
-  const scrollRef = useRef<ScrollView>(null);
-  const isUserScrolling = useRef(false);
-
-  // Scroll to selected position
-  const scrollToSelected = useCallback((index: number, animated = true) => {
-    if (scrollRef.current && index >= 0 && index < items.length) {
-      scrollRef.current.scrollTo({ y: index * ITEM_HEIGHT, animated });
-    }
-  }, [items.length]);
-
-  useEffect(() => {
-    if (!isUserScrolling.current) {
-      scrollToSelected(selectedIndex, false);
-    }
-  }, [selectedIndex, scrollToSelected]);
-
-  const handleScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    isUserScrolling.current = false;
-    const offsetY = e.nativeEvent.contentOffset.y;
-    let index = Math.round(offsetY / ITEM_HEIGHT);
-    index = Math.max(0, Math.min(items.length - 1, index));
-    if (index !== selectedIndex && items[index] !== undefined) {
-      onSelect(items[index]!, index);
-    }
-  };
+  testID,
+}: ClockDialProps) {
+  const center = size / 2;
+  const minuteRadius = size * 0.43;
+  const hourRadius = size * 0.27;
+  const hourAngle = ((hour % 12) / 12) * 360;
+  const minuteAngle = (selectedMinute / 60) * 360;
+  const minuteValues = Array.from({ length: 60 / minuteInterval }, (_, index) => index * minuteInterval);
+  const handStyle = (radius: number, angle: number) => ({
+    height: radius,
+    left: center - 1 + radius / 2 * Math.sin(angle * Math.PI / 180),
+    top: center - radius / 2 - radius / 2 * Math.cos(angle * Math.PI / 180),
+    transform: [{ rotate: `${angle}deg` }],
+  });
 
   return (
-    <View style={wheelStyles.columnContainer}>
-      <ScrollView
-        ref={scrollRef}
-        showsVerticalScrollIndicator={false}
-        snapToInterval={ITEM_HEIGHT}
-        decelerationRate="fast"
-        onScrollBeginDrag={() => { isUserScrolling.current = true; }}
-        onScrollEndDrag={handleScrollEnd}
-        onMomentumScrollEnd={handleScrollEnd}
-        contentContainerStyle={{
-          paddingVertical: PADDING_COUNT * ITEM_HEIGHT,
-        }}
-        scrollEnabled={!disabled}
-      >
-        {items.map((item, idx) => {
-          const isSelected = idx === selectedIndex;
-          return (
-            <Pressable
-              key={idx}
-              testID={`${testIDPrefix}-${String(item)}`}
-              style={wheelStyles.wheelItem}
-              onPress={() => {
-                scrollToSelected(idx, true);
-                onSelect(item, idx);
-              }}
-              disabled={disabled}
-            >
-              <Text
-                style={[
-                  wheelStyles.wheelItemText,
-                  {
-                    color: isSelected ? primaryColor : mutedTextColor,
-                    fontWeight: isSelected ? "700" : "500",
-                    fontSize: isSelected ? 20 : 16,
-                    opacity: isSelected ? 1 : 0.45,
-                  },
-                ]}
-              >
-                {formatLabel(item)}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+    <View style={[wheelStyles.dial, { width: size, height: size }]} accessibilityRole="radiogroup">
+      <RingProgress
+        center={center}
+        radius={hourRadius}
+        thickness={1.5}
+        progress={(hour % 12) / 12}
+        color={primaryColor}
+        trackColor={mutedTextColor}
+      />
+      <RingProgress
+        center={center}
+        radius={minuteRadius}
+        thickness={1.5}
+        progress={selectedMinute / 60}
+        color={primaryColor}
+        trackColor={mutedTextColor}
+      />
+      <View
+        pointerEvents="none"
+        testID={`${testID}-hour-hand`}
+        style={[
+          wheelStyles.dialHand,
+          handStyle(hourRadius, hourAngle),
+          { backgroundColor: primaryColor },
+        ]}
+      />
+      <View
+        pointerEvents="none"
+        testID={`${testID}-minute-hand`}
+        style={[wheelStyles.dialHand, handStyle(minuteRadius, minuteAngle), { backgroundColor: primaryColor, opacity: 0.5 }]}
+      />
+
+      {Array.from({ length: 12 }, (_, index) => {
+        const value = index + 1;
+        const angle = (value % 12) * 2 * Math.PI / 12;
+        const selected = value === hour;
+        const itemSize = Math.max(24, size * 0.09);
+        return (
+          <Pressable
+            key={`hour-${value}`}
+            testID={`${testID}-hour-${value}`}
+            accessibilityRole="radio"
+            accessibilityLabel={`${String(value).padStart(2, "0")} hours`}
+            accessibilityState={{ selected, disabled }}
+            disabled={disabled}
+            onPress={() => onSelectHour(value)}
+            style={[
+              wheelStyles.dialNumber,
+              {
+                width: itemSize,
+                height: itemSize,
+                left: center + size * 0.25 * Math.sin(angle) - itemSize / 2,
+                top: center - size * 0.25 * Math.cos(angle) - itemSize / 2,
+                borderRadius: itemSize / 2,
+                borderColor: primaryColor,
+                borderWidth: selected ? 0 : 1,
+                backgroundColor: selected ? primaryColor : surfaceColor,
+              },
+            ]}
+          >
+            <Text style={[
+              wheelStyles.dialNumberText,
+              { color: selected ? selectedTextColor : primaryColor, fontSize: 12 },
+            ]}>
+              {value}
+            </Text>
+          </Pressable>
+        );
+      })}
+      {minuteValues.map((value) => {
+        const angle = (value / 60) * 2 * Math.PI;
+        const selected = value === selectedMinute;
+        const itemSize = Math.max(26, size * 0.1);
+        return (
+          <Pressable
+            key={`minute-${value}`}
+            testID={`${testID}-minute-${value}`}
+            accessibilityRole="radio"
+            accessibilityLabel={`${String(value).padStart(2, "0")} minutes`}
+            accessibilityState={{ selected, disabled }}
+            disabled={disabled}
+            onPress={() => onSelectMinute(value)}
+            style={[
+              wheelStyles.minuteMarker,
+              {
+                width: itemSize,
+                height: itemSize,
+                left: center + minuteRadius * Math.sin(angle) - itemSize / 2,
+                top: center - minuteRadius * Math.cos(angle) - itemSize / 2,
+                borderRadius: itemSize / 2,
+                borderColor: primaryColor,
+                borderWidth: selected ? 0 : 1,
+                backgroundColor: selected ? primaryColor : surfaceColor,
+              },
+            ]}
+          >
+            <Text style={[
+              wheelStyles.minuteMarkerText,
+              { color: selected ? selectedTextColor : primaryColor, fontSize: 10 },
+            ]}>
+              {String(value).padStart(2, "0")}
+            </Text>
+          </Pressable>
+        );
+      })}
+      <View
+        pointerEvents="none"
+        style={[wheelStyles.dialCenter, { left: center - 3, top: center - 3, backgroundColor: primaryColor }]}
+      />
     </View>
   );
 }
@@ -128,9 +230,10 @@ export const EthiopianTimePicker = forwardRef<
     onChange,
     locale = "en",
     mode = "inline",
+    pickerStyle = "clock",
     is24Hour = false,
     useEthiopianConvention = false,
-    minuteInterval = 1,
+    minuteInterval = 5,
     defaultVisible = false,
     visible: controlledVisible,
     onOpen,
@@ -144,6 +247,8 @@ export const EthiopianTimePicker = forwardRef<
     testID = "eth-time-picker",
   } = props;
 
+  const { width: screenWidth, height: screenHeight } = useWindowDimensions();
+  const dialSize = Math.max(180, Math.min(270, screenWidth - 112, screenHeight - 430));
   const resolvedTheme = resolveTheme(customTheme);
   const dict = getLocalization(locale);
 
@@ -212,26 +317,16 @@ export const EthiopianTimePicker = forwardRef<
   const currentMinutes = isOverlayMode ? draftMinutes : activeTime.minutes;
 
   let displayHour: number;
-  let displayPeriod: string = "";
   let ethPeriod: EthiopianTimePeriod | undefined;
 
   if (useEthiopianConvention) {
     const eth = gregorianToEthiopianTime(currentHours, currentMinutes);
     displayHour = eth.hours;
     ethPeriod = eth.period;
-    displayPeriod = getTimePeriodName(eth.period, locale);
   } else if (is24Hour) {
     displayHour = currentHours;
   } else {
     displayHour = currentHours % 12 === 0 ? 12 : currentHours % 12;
-    const isPm = currentHours >= 12;
-    displayPeriod = isPm
-      ? locale === "am"
-        ? "ከሰዓት"
-        : "PM"
-      : locale === "am"
-      ? "ከጠዋት"
-      : "AM";
   }
 
   const updateTime = (newHours: number, newMinutes: number) => {
@@ -260,10 +355,6 @@ export const EthiopianTimePicker = forwardRef<
     closeModal();
   };
 
-  const hourOptions: number[] = useEthiopianConvention || !is24Hour
-    ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
-    : Array.from({ length: 24 }, (_, i) => i);
-
   const minuteOptions: number[] = Array.from(
     { length: Math.floor(60 / minuteInterval) },
     (_, i) => i * minuteInterval,
@@ -273,34 +364,43 @@ export const EthiopianTimePicker = forwardRef<
     ? ["morning", "afternoon", "evening", "night"]
     : ["AM", "PM"];
 
-  const selectedHourIndex = Math.max(0, hourOptions.indexOf(displayHour));
   const fallbackMinute = minuteOptions[0] ?? 0;
   const closestMinute = minuteOptions.reduce((prev: number, curr: number) =>
     Math.abs(curr - currentMinutes) < Math.abs(prev - currentMinutes) ? curr : prev,
     fallbackMinute
   );
-  const selectedMinuteIndex = Math.max(0, minuteOptions.indexOf(closestMinute));
-
   const currentPeriodKey = useEthiopianConvention
     ? ethPeriod ?? "morning"
     : currentHours >= 12 ? "PM" : "AM";
-  const selectedPeriodIndex = Math.max(0, periodOptions.indexOf(currentPeriodKey as any));
+  const dialHour = displayHour > 12 ? displayHour - 12 : displayHour === 0 ? 12 : displayHour;
 
   const onSelectHour = (newHour: number) => {
     if (useEthiopianConvention && ethPeriod) {
       const greg = ethiopianToGregorianTime(newHour, currentMinutes, ethPeriod);
       updateTime(greg.hours, currentMinutes);
-    } else if (!is24Hour) {
+    } else {
       const isPm = currentHours >= 12;
       const h24 = newHour === 12 ? (isPm ? 12 : 0) : (isPm ? newHour + 12 : newHour);
       updateTime(h24, currentMinutes);
-    } else {
-      updateTime(newHour, currentMinutes);
     }
   };
 
   const onSelectMinute = (newMinute: number) => {
     updateTime(currentHours, newMinute);
+  };
+
+  const stepHour = (step: number) => {
+    if (is24Hour && !useEthiopianConvention) {
+      updateTime(currentHours + step, currentMinutes);
+      return;
+    }
+    const nextHour = ((dialHour - 1 + step + 12) % 12) + 1;
+    onSelectHour(nextHour);
+  };
+
+  const stepMinute = (step: number) => {
+    const nextMinute = (closestMinute + step * minuteInterval + 60) % 60;
+    onSelectMinute(nextMinute);
   };
 
   const onSelectPeriod = (targetPeriod: "AM" | "PM" | EthiopianTimePeriod) => {
@@ -321,8 +421,38 @@ export const EthiopianTimePicker = forwardRef<
     if (useEthiopianConvention) {
       return getTimePeriodName(p as EthiopianTimePeriod, locale);
     }
-    return p === "AM" ? (locale === "am" ? "ከጠዋት" : "AM") : (locale === "am" ? "ከሰዓት" : "PM");
+    return p;
   };
+
+  const periodSelector = !is24Hour ? (
+    <View style={wheelStyles.periodSelector}>
+      {periodOptions.map((period) => {
+        const selected = period === currentPeriodKey;
+        return (
+          <Pressable
+            key={period}
+            testID={`${testID}-period-${period}`}
+            accessibilityRole="radio"
+            accessibilityLabel={formatPeriodLabel(period)}
+            accessibilityState={{ selected, disabled }}
+            disabled={disabled}
+            onPress={() => onSelectPeriod(period)}
+            style={[
+              wheelStyles.periodOption,
+              { backgroundColor: selected ? resolvedTheme.backgroundColor : "transparent" },
+            ]}
+          >
+            <Text style={[
+              wheelStyles.periodOptionText,
+              { color: selected ? resolvedTheme.primaryColor : resolvedTheme.mutedTextColor },
+            ]}>
+              {formatPeriodLabel(period)}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  ) : null;
 
   const renderContent = () => (
     <View
@@ -330,15 +460,14 @@ export const EthiopianTimePicker = forwardRef<
         wheelStyles.container,
         {
           backgroundColor: resolvedTheme.backgroundColor,
-          borderColor: resolvedTheme.borderColor,
           borderRadius: resolvedTheme.borderRadius,
         },
         style,
       ]}
       testID={testID}
     >
-      <View style={wheelStyles.displayRow}>
-        <View testID={`${testID}-hours-segment`} style={[wheelStyles.timeBlock, { backgroundColor: resolvedTheme.surfaceColor }]}>
+      {pickerStyle === "clock" && <View style={wheelStyles.displayRow}>
+        <View testID={`${testID}-hours-segment`} style={wheelStyles.timeBlock}>
           <Text style={[wheelStyles.timeText, { color: resolvedTheme.primaryColor }]}>
             {String(displayHour).padStart(2, "0")}
           </Text>
@@ -346,89 +475,98 @@ export const EthiopianTimePicker = forwardRef<
 
         <Text style={[wheelStyles.colon, { color: resolvedTheme.textColor }]}>:</Text>
 
-        <View testID={`${testID}-minutes-segment`} style={[wheelStyles.timeBlock, { backgroundColor: resolvedTheme.surfaceColor }]}>
+        <View testID={`${testID}-minutes-segment`} style={wheelStyles.timeBlock}>
           <Text style={[wheelStyles.timeText, { color: resolvedTheme.primaryColor }]}>
             {String(currentMinutes).padStart(2, "0")}
           </Text>
         </View>
 
-        {!is24Hour && (
-          <View style={[wheelStyles.timeBlock, wheelStyles.periodBlock, { backgroundColor: resolvedTheme.surfaceColor }]}>
-            <Text style={[wheelStyles.periodDisplayText, { color: resolvedTheme.primaryColor }]}>
-              {displayPeriod}
+        {periodSelector}
+      </View>}
+
+      {pickerStyle === "clock" ? <ClockDial
+        size={dialSize}
+        hour={dialHour}
+        selectedMinute={closestMinute}
+        minuteInterval={minuteInterval}
+        onSelectHour={onSelectHour}
+        onSelectMinute={onSelectMinute}
+        primaryColor={resolvedTheme.primaryColor}
+        textColor={resolvedTheme.textColor}
+        mutedTextColor={resolvedTheme.mutedTextColor}
+        selectedTextColor={resolvedTheme.selectedDayTextColor}
+        surfaceColor={resolvedTheme.backgroundColor}
+        disabled={disabled}
+        testID={testID}
+      /> : (
+        <View style={wheelStyles.stepperRow}>
+          <View style={[wheelStyles.stepperField, { backgroundColor: resolvedTheme.surfaceColor }]}>
+            <Text style={[wheelStyles.stepperLabel, { color: resolvedTheme.mutedTextColor }]}>
+              {locale === "am" ? "ሰዓት" : "HOUR"}
             </Text>
+            <Pressable
+              testID={`${testID}-hour-up`}
+              accessibilityRole="button"
+              accessibilityLabel={locale === "am" ? "ሰዓት ጨምር" : "Increase hour"}
+              accessibilityState={{ disabled }}
+              disabled={disabled}
+              onPress={() => stepHour(1)}
+              style={[wheelStyles.stepperButton, { backgroundColor: resolvedTheme.backgroundColor }]}
+            >
+              <Text style={[wheelStyles.stepperArrow, { color: resolvedTheme.primaryColor }]}>⌃</Text>
+            </Pressable>
+            <Text testID={`${testID}-stepper-hour-value`} style={[wheelStyles.stepperValue, { color: resolvedTheme.textColor }]}>
+              {String(is24Hour && !useEthiopianConvention ? displayHour : dialHour).padStart(2, "0")}
+            </Text>
+            <Pressable
+              testID={`${testID}-hour-down`}
+              accessibilityRole="button"
+              accessibilityLabel={locale === "am" ? "ሰዓት ቀንስ" : "Decrease hour"}
+              accessibilityState={{ disabled }}
+              disabled={disabled}
+              onPress={() => stepHour(-1)}
+              style={[wheelStyles.stepperButton, { backgroundColor: resolvedTheme.backgroundColor }]}
+            >
+              <Text style={[wheelStyles.stepperArrow, { color: resolvedTheme.primaryColor }]}>⌄</Text>
+            </Pressable>
           </View>
-        )}
-      </View>
 
-      <View style={wheelStyles.columnHeaderRow}>
-        <Text style={[wheelStyles.columnHeader, { color: resolvedTheme.mutedTextColor }]}>
-          {locale === "am" ? "ሰዓት" : "HOUR"}
-        </Text>
-        <Text style={[wheelStyles.columnHeader, { color: resolvedTheme.mutedTextColor }]}>
-          {locale === "am" ? "ደቂቃ" : "MINUTE"}
-        </Text>
-        {!is24Hour && (
-          <Text style={[wheelStyles.columnHeader, { color: resolvedTheme.mutedTextColor }]}>
-            {locale === "am" ? "ክፍለ-ጊዜ" : "PERIOD"}
-          </Text>
-        )}
-      </View>
+          <Text style={[wheelStyles.stepperColon, { color: resolvedTheme.primaryColor }]}>:</Text>
 
-      <View style={wheelStyles.wheelBox}>
-        <View
-          pointerEvents="none"
-          style={[
-            wheelStyles.selectionBar,
-            {
-              backgroundColor: resolvedTheme.surfaceColor,
-              borderColor: resolvedTheme.primaryColor,
-            },
-          ]}
-        />
-
-        <SlidingColumn<number>
-          items={hourOptions}
-          selectedIndex={selectedHourIndex}
-          onSelect={onSelectHour}
-          formatLabel={(h) => String(h).padStart(2, "0")}
-          testIDPrefix={`${testID}-hour`}
-          primaryColor={resolvedTheme.primaryColor}
-          textColor={resolvedTheme.textColor}
-          mutedTextColor={resolvedTheme.mutedTextColor}
-          disabled={disabled}
-        />
-
-        <View pointerEvents="none" style={wheelStyles.wheelSeparator}>
-          <Text style={[wheelStyles.wheelColon, { color: resolvedTheme.mutedTextColor }]}>:</Text>
+          <View style={[wheelStyles.stepperField, { backgroundColor: resolvedTheme.surfaceColor }]}>
+            <Text style={[wheelStyles.stepperLabel, { color: resolvedTheme.mutedTextColor }]}>
+              {locale === "am" ? "ደቂቃ" : "MINUTE"}
+            </Text>
+            <Pressable
+              testID={`${testID}-minute-up`}
+              accessibilityRole="button"
+              accessibilityLabel={locale === "am" ? "ደቂቃ ጨምር" : "Increase minute"}
+              accessibilityState={{ disabled }}
+              disabled={disabled}
+              onPress={() => stepMinute(1)}
+              style={[wheelStyles.stepperButton, { backgroundColor: resolvedTheme.backgroundColor }]}
+            >
+              <Text style={[wheelStyles.stepperArrow, { color: resolvedTheme.primaryColor }]}>⌃</Text>
+            </Pressable>
+            <Text testID={`${testID}-stepper-minute-value`} style={[wheelStyles.stepperValue, { color: resolvedTheme.textColor }]}>
+              {String(currentMinutes).padStart(2, "0")}
+            </Text>
+            <Pressable
+              testID={`${testID}-minute-down`}
+              accessibilityRole="button"
+              accessibilityLabel={locale === "am" ? "ደቂቃ ቀንስ" : "Decrease minute"}
+              accessibilityState={{ disabled }}
+              disabled={disabled}
+              onPress={() => stepMinute(-1)}
+              style={[wheelStyles.stepperButton, { backgroundColor: resolvedTheme.backgroundColor }]}
+            >
+              <Text style={[wheelStyles.stepperArrow, { color: resolvedTheme.primaryColor }]}>⌄</Text>
+            </Pressable>
+          </View>
+          {periodSelector}
         </View>
+      )}
 
-        <SlidingColumn<number>
-          items={minuteOptions}
-          selectedIndex={selectedMinuteIndex}
-          onSelect={onSelectMinute}
-          formatLabel={(m) => String(m).padStart(2, "0")}
-          testIDPrefix={`${testID}-minute`}
-          primaryColor={resolvedTheme.primaryColor}
-          textColor={resolvedTheme.textColor}
-          mutedTextColor={resolvedTheme.mutedTextColor}
-          disabled={disabled}
-        />
-
-        {!is24Hour && (
-          <SlidingColumn<"AM" | "PM" | EthiopianTimePeriod>
-            items={periodOptions}
-            selectedIndex={selectedPeriodIndex}
-            onSelect={onSelectPeriod}
-            formatLabel={formatPeriodLabel}
-            testIDPrefix={`${testID}-period`}
-            primaryColor={resolvedTheme.primaryColor}
-            textColor={resolvedTheme.textColor}
-            mutedTextColor={resolvedTheme.mutedTextColor}
-            disabled={disabled}
-          />
-        )}
-      </View>
     </View>
   );
 
@@ -439,7 +577,7 @@ export const EthiopianTimePicker = forwardRef<
         presentationMode={mode}
         onClose={closeModal}
         onConfirm={handleConfirm}
-        title={title ?? (locale === "am" ? "ሰዓት ይምረጡ" : "Select Time")}
+        title={title}
         confirmText={confirmText ?? dict.confirm}
         cancelText={cancelText ?? dict.cancel}
         locale={locale}
@@ -458,9 +596,8 @@ EthiopianTimePicker.displayName = "EthiopianTimePicker";
 
 const wheelStyles = StyleSheet.create({
   container: {
-    padding: 20,
-    borderRadius: 16,
-    borderWidth: 1,
+    padding: 8,
+    borderRadius: 20,
     width: "100%",
     maxWidth: 380,
     alignSelf: "center",
@@ -469,80 +606,144 @@ const wheelStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 16,
+    minHeight: 60,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    marginBottom: 4,
+    borderRadius: 14,
   },
   timeBlock: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-  },
-  periodBlock: {
-    marginLeft: 10,
+    minWidth: 48,
+    minHeight: 46,
+    paddingHorizontal: 6,
+    paddingVertical: 4,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 13,
   },
   timeText: {
-    fontSize: 26,
-    fontWeight: "800",
+    fontSize: 22,
+    fontWeight: "500",
     letterSpacing: -0.5,
-  },
-  periodDisplayText: {
-    fontSize: 16,
-    fontWeight: "700",
+    textAlign: "center",
+    includeFontPadding: false,
   },
   colon: {
-    fontSize: 24,
-    fontWeight: "700",
+    fontSize: 22,
+    fontWeight: "500",
     marginHorizontal: 8,
   },
-  columnHeaderRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginBottom: 8,
-    paddingHorizontal: 10,
-  },
-  columnHeader: {
-    flex: 1,
-    textAlign: "center",
-    fontSize: 11,
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
-  wheelBox: {
-    height: WHEEL_HEIGHT,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+  dial: {
+    alignSelf: "center",
     position: "relative",
-    overflow: "hidden",
+    marginBottom: 6,
   },
-  selectionBar: {
+  ringSegment: {
     position: "absolute",
-    top: PADDING_COUNT * ITEM_HEIGHT,
-    left: 4,
-    right: 4,
-    height: ITEM_HEIGHT,
+    zIndex: 0,
+  },
+  minuteMarker: {
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1,
+  },
+  minuteMarkerText: {
+    fontWeight: "600",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  dialHand: {
+    position: "absolute",
+    width: 2,
+    zIndex: 0,
+  },
+  dialCenter: {
+    position: "absolute",
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    zIndex: 2,
+  },
+  dialNumber: {
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 20,
+  },
+  dialNumberText: {
+    fontWeight: "600",
+    letterSpacing: -0.5,
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  periodSelector: {
+    flexDirection: "column",
+    alignItems: "stretch",
+    justifyContent: "center",
+    minWidth: 52,
+    padding: 3,
     borderRadius: 10,
-    borderWidth: 1.5,
+    marginLeft: 8,
   },
-  columnContainer: {
-    flex: 1,
-    height: WHEEL_HEIGHT,
-  },
-  wheelItem: {
-    height: ITEM_HEIGHT,
+  periodOption: {
+    minHeight: 22,
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: 4,
+    borderRadius: 7,
   },
-  wheelItemText: {
-    letterSpacing: -0.2,
-  },
-  wheelSeparator: {
-    width: 14,
-    alignItems: "center",
-    justifyContent: "center",
-    height: WHEEL_HEIGHT,
-  },
-  wheelColon: {
-    fontSize: 18,
+  periodOptionText: {
+    fontSize: 12,
     fontWeight: "700",
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  stepperRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginVertical: 28,
+  },
+  stepperField: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 12,
+    borderRadius: 18,
+  },
+  stepperLabel: {
+    fontSize: 10,
+    fontWeight: "700",
+    letterSpacing: 0.8,
+    marginBottom: 8,
+  },
+  stepperButton: {
+    width: 42,
+    height: 34,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 17,
+  },
+  stepperArrow: {
+    fontSize: 19,
+    lineHeight: 22,
+    fontWeight: "700",
+    textAlign: "center",
+    textAlignVertical: "center",
+    includeFontPadding: false,
+  },
+  stepperValue: {
+    fontSize: 34,
+    fontWeight: "800",
+    fontVariant: ["tabular-nums"],
+    marginVertical: 3,
+    textAlign: "center",
+    includeFontPadding: false,
+  },
+  stepperColon: {
+    fontSize: 28,
+    fontWeight: "700",
+    marginHorizontal: 8,
   },
 });

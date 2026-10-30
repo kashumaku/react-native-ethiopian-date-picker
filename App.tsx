@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, TextInput, Pressable, ScrollView } from "react-native";
+import { StyleSheet, Text, View, Pressable, ScrollView } from "react-native";
 import {
   EthiopianDatePicker,
   EthiopianTimePicker,
@@ -13,7 +13,7 @@ import {
 } from "./src";
 
 type Mode = "sheet" | "modal" | "inline";
-type PickerType = "grad" | "exp" | "startTime" | "endTime" | null;
+type PickerType = "grad" | "exp" | "startTime" | null;
 
 const darkTheme = {
   backgroundColor: "#18181B",
@@ -45,20 +45,17 @@ export default function App() {
   const [activePicker, setActivePicker] = useState<PickerType>(null);
 
   // Form Fields
-  const [name, setName] = useState("");
   const [gradDate, setGradDate] = useState<Date | null>(null);
   const [expRange, setExpRange] = useState<EthiopianDateRange>({
     startDate: null,
     endDate: null,
   });
   const [startTime, setStartTime] = useState<EthiopianTime | null>(null);
-  const [endTime, setEndTime] = useState<EthiopianTime | null>(null);
 
   const isAm = locale === "am";
   const gradText = gradDate ? formatEthiopianDate(gradDate, { locale, format: "long" }) : "";
   const expText = formatEthiopianDateRange(expRange, { locale }) || "";
   const startTimeText = startTime ? formatEthiopianTime(startTime, { locale }) : "";
-  const endTimeText = endTime ? formatEthiopianTime(endTime, { locale }) : "";
 
   const themeConfig = isDark ? darkTheme : undefined;
   const bgColor = isDark ? "#09090B" : "#FFFFFF";
@@ -75,7 +72,7 @@ export default function App() {
         <Pressable style={styles.navIconBtn}>
           <Text style={[styles.navIcon, { color: textColor }]}>‹</Text>
         </Pressable>
-        <Text style={[styles.navTitle, { color: textColor }]}>Employee</Text>
+        <Text style={[styles.navTitle, { color: textColor }]}>Demo</Text>
         
         {/* Header Right Actions: Locale and Theme Switchers */}
         <View style={styles.navActions}>
@@ -100,27 +97,9 @@ export default function App() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        {/* Title */}
-        <Text style={[styles.title, { color: textColor }]}>{isAm ? "የባለሙያ መረጃ" : "Professional Profile"}</Text>
-        <Text style={[styles.subtitle, { color: mutedColor }]}>
-          {isAm ? "እባክዎ መረጃዎን በኢትዮጵያ የቀንና የሰዓት መቁጠሪያ ያስገቡ" : "Fill out your details using Ethiopian Calendar & Time"}
-        </Text>
-
-        {/* 1. Full Name Input (Underline only) */}
+        {/* Date picker */}
         <View style={styles.fieldGroup}>
-          <Text style={[styles.label, { color: mutedColor }]}>{isAm ? "ሙሉ ስም" : "FULL NAME"}</Text>
-          <TextInput
-            style={[styles.underlineInput, { color: textColor, borderBottomColor: borderLineColor }]}
-            value={name}
-            onChangeText={setName}
-            placeholder={isAm ? "ስምዎን ያስገቡ" : "Enter your full name"}
-            placeholderTextColor={isDark ? "#71717A" : "#A1A1AA"}
-          />
-        </View>
-
-        {/* 2. Date of Graduation Input (Underline only) */}
-        <View style={styles.fieldGroup}>
-          <Text style={[styles.label, { color: mutedColor }]}>{isAm ? "የምረቃ ቀን" : "DATE OF GRADUATION"}</Text>
+          <Text style={[styles.label, { color: mutedColor }]}>Pick Date</Text>
           <Pressable
             style={[
               styles.underlineInput,
@@ -130,15 +109,15 @@ export default function App() {
             onPress={() => setActivePicker("grad")}
           >
             <Text style={[styles.inputText, { color: textColor }, !gradDate && styles.placeholderText]}>
-              {gradText || (isAm ? "የምረቃ ቀን ይምረጡ" : "Select graduation date")}
+              {gradText || "Pick Date"}
             </Text>
             <Text style={styles.fieldIcon}>🎓</Text>
           </Pressable>
         </View>
 
-        {/* 3. Experience Year Range Input (Underline only) */}
+        {/* Date range picker */}
         <View style={styles.fieldGroup}>
-          <Text style={[styles.label, { color: mutedColor }]}>{isAm ? "የስራ ልምድ ዓመታት ክልል" : "EXPERIENCE YEAR RANGE"}</Text>
+          <Text style={[styles.label, { color: mutedColor }]}>Pick Date Range</Text>
           <Pressable
             style={[
               styles.underlineInput,
@@ -148,63 +127,35 @@ export default function App() {
             onPress={() => setActivePicker("exp")}
           >
             <Text style={[styles.inputText, { color: textColor }, !expRange.startDate && styles.placeholderText]}>
-              {expText || (isAm ? "የልምድ ክልል ይምረጡ" : "Select experience range")}
+              {expText || "Pick Date Range"}
             </Text>
             <Text style={styles.fieldIcon}>💼</Text>
           </Pressable>
         </View>
 
-        {/* 4. Working Hours in a Row (Start & End Time) */}
+        {/* Time picker */}
         <View style={styles.fieldGroup}>
-          <Text style={[styles.label, { color: mutedColor }]}>{isAm ? "የስራ ሰዓት (መግቢያ - መውጫ)" : "WORKING HOURS (START & END)"}</Text>
-          <View style={styles.row}>
-            {/* Start Time */}
-            <View style={styles.col}>
-              <Pressable
-                style={[
-                  styles.underlineInput,
-                  { borderBottomColor: borderLineColor },
-                  activePicker === "startTime" && styles.underlineInputActive,
-                ]}
-                onPress={() => setActivePicker("startTime")}
-              >
-                <Text style={[styles.inputText, { color: textColor }, !startTime && styles.placeholderText]}>
-                  {startTimeText || (isAm ? "መግቢያ ሰዓት" : "Start Time")}
-                </Text>
-                <Text style={styles.fieldIcon}>⏰</Text>
-              </Pressable>
-            </View>
-
-            {/* End Time */}
-            <View style={styles.col}>
-              <Pressable
-                style={[
-                  styles.underlineInput,
-                  { borderBottomColor: borderLineColor },
-                  activePicker === "endTime" && styles.underlineInputActive,
-                ]}
-                onPress={() => setActivePicker("endTime")}
-              >
-                <Text style={[styles.inputText, { color: textColor }, !endTime && styles.placeholderText]}>
-                  {endTimeText || (isAm ? "መውጫ ሰዓት" : "End Time")}
-                </Text>
-                <Text style={styles.fieldIcon}>⏰</Text>
-              </Pressable>
-            </View>
-          </View>
+          <Text style={[styles.label, { color: mutedColor }]}>Pick Time</Text>
+          <Pressable
+            style={[
+              styles.underlineInput,
+              { borderBottomColor: borderLineColor },
+              activePicker === "startTime" && styles.underlineInputActive,
+            ]}
+            onPress={() => setActivePicker("startTime")}
+          >
+            <Text style={[styles.inputText, { color: textColor }, !startTime && styles.placeholderText]}>
+              {startTimeText || "Pick Time"}
+            </Text>
+            <Text style={styles.fieldIcon}>⏰</Text>
+          </Pressable>
         </View>
 
         {/* Inline Picker View (when inline mode active) */}
         {mode === "inline" && activePicker && (
           <View style={styles.inlineBox}>
             <Text style={[styles.inlineTitle, { color: textColor }]}>
-              {activePicker === "grad"
-                ? isAm ? "የምረቃ ቀን መምረጫ" : "Select Graduation Date"
-                : activePicker === "exp"
-                ? isAm ? "የስራ ልምድ ክልል መምረጫ" : "Select Experience Range"
-                : activePicker === "startTime"
-                ? isAm ? "የስራ መግቢያ ሰዓት መምረጫ" : "Select Start Working Time"
-                : isAm ? "የስራ መውጫ ሰዓት መምረጫ" : "Select End Working Time"}
+              {activePicker === "grad" ? "Pick Date" : activePicker === "exp" ? "Pick Date Range" : "Pick Time"}
             </Text>
             {activePicker === "startTime" ? (
               <EthiopianTimePicker
@@ -213,14 +164,6 @@ export default function App() {
                 locale={locale}
                 theme={themeConfig}
                 onChange={(t) => setStartTime(t)}
-              />
-            ) : activePicker === "endTime" ? (
-              <EthiopianTimePicker
-                mode="inline"
-                value={endTime ?? undefined}
-                locale={locale}
-                theme={themeConfig}
-                onChange={(t) => setEndTime(t)}
               />
             ) : (
               <EthiopianDatePicker
@@ -249,11 +192,6 @@ export default function App() {
             locale={locale}
             theme={themeConfig}
             showTodayButton
-            title={""
-              // activePicker === "grad"
-              //   ? isAm ? "የምረቃ ቀን ይምረጡ" : "Select Date of Graduation"
-              //   : isAm ? "የስራ ልምድ ክልል ይምረጡ" : "Select Experience Range"
-            }
             confirmText={isAm ? "አረጋግጥ" : "Confirm"}
             cancelText={isAm ? "ይቅር" : "Cancel"}
             onChange={(d) => {
@@ -269,30 +207,18 @@ export default function App() {
         )}
 
         {/* Modal / Sheet Overlay Time Picker */}
-        {mode !== "inline" && (activePicker === "startTime" || activePicker === "endTime") && (
+        {mode !== "inline" && activePicker === "startTime" && (
           <EthiopianTimePicker
             mode={mode}
             visible={true}
-            value={
-              activePicker === "startTime"
-                ? startTime ?? undefined
-                : endTime ?? undefined
-            }
+            value={startTime ?? undefined}
             locale={locale}
             theme={themeConfig}
-            title={
-              activePicker === "startTime"
-                ? isAm ? "የስራ መግቢያ ሰዓት ይምረጡ" : "Select Start Working Time"
-                : isAm ? "የስራ መውጫ ሰዓት ይምረጡ" : "Select End Working Time"
-            }
+           
             confirmText={isAm ? "አረጋግጥ" : "Confirm"}
             cancelText={isAm ? "ይቅር" : "Cancel"}
             onChange={(t) => {
-              if (activePicker === "startTime") {
-                setStartTime(t);
-              } else {
-                setEndTime(t);
-              }
+              setStartTime(t);
               setActivePicker(null);
             }}
             onClose={() => setActivePicker(null)}

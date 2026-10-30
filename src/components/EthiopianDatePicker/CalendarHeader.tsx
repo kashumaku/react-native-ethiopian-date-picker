@@ -104,9 +104,9 @@ export const CalendarHeader: React.FC<CalendarHeaderProps> = React.memo(
                 accessibilityState={{ selected }}
                 disabled={disabled}
                 onPress={() => onCalendarSystemChange(system)}
-                style={[styles.calendarTab, { backgroundColor: selected ? theme.primaryColor : "transparent" }]}
+                style={[styles.calendarTab, { backgroundColor: selected ? theme.backgroundColor : "transparent" }]}
               >
-                <Text style={[styles.calendarTabText, { color: selected ? theme.selectedDayTextColor : theme.textColor }]}>
+                <Text style={[styles.calendarTabText, { color: selected ? theme.primaryColor : theme.mutedTextColor }]}>
                   {calendarName(system)}
                 </Text>
               </Pressable>

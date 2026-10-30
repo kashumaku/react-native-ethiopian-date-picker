@@ -66,8 +66,8 @@ export const styles = StyleSheet.create({
   calendarTabs: {
     flexDirection: "row",
     width: "100%",
-    padding: 3,
-    borderRadius: 10,
+    padding: 4,
+    borderRadius: 12,
     marginTop: -6,
     marginBottom: 14,
   },
@@ -77,7 +77,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 14,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 8,
+    borderRadius: 9,
   },
   calendarTabText: {
     fontSize: 13,
