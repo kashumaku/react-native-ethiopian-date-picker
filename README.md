@@ -10,12 +10,11 @@ A modern, production-ready, fully accessible Ethiopian calendar date picker for 
 
 ---
 
-## Screenshots
+## Demo
 
-| 1. Overview | 2. Date Picker | 3. Date Range Picker | 4. Time Picker (Start) | 5. Time Picker (End) |
-| :---: | :---: | :---: | :---: | :---: |
-| `01-demo-overview.png` | `02-single-date-picker.png` | `03-date-range-picker.png` | `04-time-picker-start.png` | `05-time-picker-end.png` |
-| <img src="https://raw.githubusercontent.com/kashumaku/react-native-ethiopian-date-picker/master/assets/screenshots/01-demo-overview.png" width="160" alt="01-demo-overview" /> | <img src="https://raw.githubusercontent.com/kashumaku/react-native-ethiopian-date-picker/master/assets/screenshots/02-single-date-picker.png" width="160" alt="02-single-date-picker" /> | <img src="https://raw.githubusercontent.com/kashumaku/react-native-ethiopian-date-picker/master/assets/screenshots/03-date-range-picker.png" width="160" alt="03-date-range-picker" /> | <img src="https://raw.githubusercontent.com/kashumaku/react-native-ethiopian-date-picker/master/assets/screenshots/04-time-picker-start.png" width="160" alt="04-time-picker-start" /> | <img src="https://raw.githubusercontent.com/kashumaku/react-native-ethiopian-date-picker/master/assets/screenshots/05-time-picker-end.png" width="160" alt="05-time-picker-end" /> |
+<video src="https://raw.githubusercontent.com/kashumaku/react-native-ethiopian-date-picker/master/assets/video/demo_video.mp4" controls width="640">
+  Your browser does not support embedded video. [Watch the demo video](https://raw.githubusercontent.com/kashumaku/react-native-ethiopian-date-picker/master/assets/video/demo_video.mp4).
+</video>
 
 ---
 
@@ -25,6 +24,7 @@ A modern, production-ready, fully accessible Ethiopian calendar date picker for 
 - 🔁 **Gregorian & Ethiopian Calendar Tabs** — Switch calendar systems in the picker header while keeping selection values as standard JavaScript `Date` objects.
 - 🔄 **Bidirectional Date Conversion** — Convert effortlessly between standard JavaScript `Date` (Gregorian) and Ethiopian date representations (`{ year, month, day }`).
 - ↔️ **Date Range Picker (`selectionType="range"`)** — Seamlessly select start and end date ranges with continuous ribbon highlighting.
+- 🕒 **Dual-Ring Time Picker** — Select hours on the inner dial and minutes on the outer dial, with five-minute steps by default and AM/PM controls beside the time display.
 - 🌐 **Built-in English & Amharic (አማርኛ)** — Native Amharic script and English month/weekday names, labels, and formats.
 - 🎨 **Deeply Customizable Theming** — Seamless light/dark modes, custom color palettes, surface styling, and custom border radiuses.
 - 🪟 **Inline & Modal Modes** — Display directly embedded inside your view hierarchy or present as a modal dialog with confirmation workflows.
@@ -196,7 +196,7 @@ Simply pass `locale="am"`:
 
 ### Gregorian and Ethiopian calendar tabs
 
-The picker starts in Ethiopian mode (`"EC"`) and includes full-width header tabs for switching between calendars. `calendarSystem` accepts `"EC"`/`"GC"` and the descriptive aliases `"ethiopian"`/`"gregorian"`. Gregorian mode uses English calendar labels and default modal actions (`Cancel` and `Confirm`) regardless of the `locale` setting. The selected value and callbacks remain JavaScript `Date` objects in either mode. To control the active tab, pass `calendarSystem` and update it in `onCalendarSystemChange`:
+The picker starts in Ethiopian mode (`"EC"`) and includes full-width header tabs for switching between calendars. `calendarSystem` accepts `"EC"`/`"GC"` and the descriptive aliases `"ethiopian"`/`"gregorian"`. Gregorian mode uses English calendar labels and default modal actions (`Cancel` and `Confirm`) regardless of the `locale` setting. The selected value and callbacks remain JavaScript `Date` objects in either mode. In the demo form, the `GC`/`EC` control in each date input switches both date pickers and reformats the displayed date or range in the selected calendar. To control the picker tab, pass `calendarSystem` and update it in `onCalendarSystemChange`:
 
 ```tsx
 const [calendarSystem, setCalendarSystem] = useState<"EC" | "GC">("EC");
@@ -425,7 +425,9 @@ const grid = getEthiopianMonthGrid(2019, 1);
 
 ### Ethiopian Time Picker (`<EthiopianTimePicker />`)
 
-Support standard 12-hour, 24-hour, and traditional Ethiopian 12-hour solar day cycle (where sunrise at 6:00 AM Gregorian is 12:00 morning in Ethiopian time):
+The default clock face shows both selectors together: hours from 1–12 on the inner ring and minutes on the outer ring. The default minute interval is five minutes (`00`, `05`, … `55`). The hour and minute hands point to their selected values, and the AM/PM choices appear vertically beside the time display. `minuteInterval` can adjust the minute steps. Set `pickerStyle="stepper"` to use the alternative digital stepper layout.
+
+The picker supports standard 12-hour, 24-hour, and traditional Ethiopian 12-hour solar day cycle (where sunrise at 6:00 AM Gregorian is 12:00 morning in Ethiopian time):
 
 ```tsx
 import React, { useState } from "react";
@@ -508,7 +510,7 @@ export function TimePickerExample() {
 | `defaultValue` | `Date \| EthiopianTime` | `Current Time` | Initial uncontrolled time value. |
 | `onChange` | `(time: EthiopianTime, date: Date) => void` | `undefined` | Callback fired when time is changed/confirmed. |
 | `mode` | `"inline" \| "modal" \| "sheet"` | `"inline"` | Display presentation: inline, modal dialog, or bottom sheet. |
-| `pickerStyle` | `"clock" \| "stepper"` | `"clock"` | Choose the dual-ring clock dial or a split digital stepper layout. In clock mode, the outer ring selects hours and the inner ring selects minutes. |
+| `pickerStyle` | `"clock" \| "stepper"` | `"clock"` | Choose the dual-ring clock dial or a split digital stepper layout. In clock mode, the inner ring selects hours and the outer ring selects minutes. |
 | `is24Hour` | `boolean` | `false` | Enables 24-hour time format (00:00 to 23:59). |
 | `useEthiopianConvention` | `boolean` | `false` | Traditional 12-hour solar day cycle starting at sunrise (~6 AM). |
 | `minuteInterval` | `number` | `5` | Minute dial and stepper interval (1, 5, 10, 15, or 30 minutes). |

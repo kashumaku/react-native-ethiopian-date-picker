@@ -5,8 +5,8 @@ import {
   EthiopianDatePicker,
   EthiopianTimePicker,
   formatEthiopianDate,
-  formatEthiopianDateRange,
   formatEthiopianTime,
+  toEthiopian,
   type EthiopianDateRange,
   type EthiopianLocale,
   type EthiopianTime,
@@ -54,8 +54,17 @@ export default function App() {
   const [startTime, setStartTime] = useState<EthiopianTime | null>(null);
 
   const isAm = locale === "am";
-  const gradText = gradDate ? formatEthiopianDate(gradDate, { locale, format: "long" }) : "";
-  const expText = formatEthiopianDateRange(expRange, { locale }) || "";
+  const formatSelectedDate = (date: Date) => calendarSystem === "GC"
+    ? new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(date)
+    : formatEthiopianDate(toEthiopian(date), { locale, format: "long" });
+  const gradText = gradDate ? formatSelectedDate(gradDate) : "";
+  const expText = expRange.startDate && expRange.endDate
+    ? `${formatSelectedDate(expRange.startDate)} – ${formatSelectedDate(expRange.endDate)}`
+    : expRange.startDate
+    ? formatSelectedDate(expRange.startDate)
+    : expRange.endDate
+    ? formatSelectedDate(expRange.endDate)
+    : "";
   const startTimeText = startTime ? formatEthiopianTime(startTime, { locale }) : "";
 
   const themeConfig = isDark ? darkTheme : undefined;
